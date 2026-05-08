@@ -37,24 +37,61 @@ The figure below illustrates MMD gradient flows under different spectral geometr
 
 ## Notebooks
 
-### MMD Gradient Flow
+All notebooks are in [`python/`](./python/README.md). Each one can be opened directly on GitHub or launched in Colab.
 
-[![MMD flow notebook](./assets/mmd_trajectories_three.png)](https://github.com/gpeyre/muon-dynamics/blob/main/python/mmd/mmd_flow.ipynb)
+### Static Spectral Couplings
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gpeyre/muon-dynamics/blob/main/python/mmd/mmd_flow.ipynb)
+[![Static spectral couplings](./assets/static_matchings_three.png)](https://github.com/gpeyre/muon-dynamics/blob/main/python/static/static_couplings.ipynb)
 
-### Static Couplings
-
-[![Static transport notebook](./assets/static_matchings_three.png)](https://github.com/gpeyre/muon-dynamics/blob/main/python/static/static_couplings.ipynb)
-
+[![Open on GitHub](https://img.shields.io/badge/Open_on-GitHub-24292f?logo=github)](https://github.com/gpeyre/muon-dynamics/blob/main/python/static/static_couplings.ipynb)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gpeyre/muon-dynamics/blob/main/python/static/static_couplings.ipynb)
 
-Additional experiments are documented in [`python/README.md`](./python/README.md):
+Static transport couplings between planar point clouds for the trace geometry and the operator-norm geometry.
 
-- `python/gaussians/gaussian_closed_form.ipynb`;
-- `python/gaussians-kl-flow/gaussian-kl-flow.ipynb`;
-- `python/mlp/mlp_spectral_flow_relu.ipynb`;
-- `python/attention/attention_spectral_flow.ipynb`.
+### MMD Gradient Flow
+
+[![MMD gradient flow](./assets/mmd_trajectories_three.png)](https://github.com/gpeyre/muon-dynamics/blob/main/python/mmd/mmd_flow.ipynb)
+
+[![Open on GitHub](https://img.shields.io/badge/Open_on-GitHub-24292f?logo=github)](https://github.com/gpeyre/muon-dynamics/blob/main/python/mmd/mmd_flow.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gpeyre/muon-dynamics/blob/main/python/mmd/mmd_flow.ipynb)
+
+Particle flows minimizing an MMD loss under different Spectral Wasserstein geometries.
+
+### Gaussian Closed-Form Reductions
+
+[![Gaussian closed-form reductions](./assets/gaussian_closed_form.png)](https://github.com/gpeyre/muon-dynamics/blob/main/python/gaussians/gaussian_closed_form.ipynb)
+
+[![Open on GitHub](https://img.shields.io/badge/Open_on-GitHub-24292f?logo=github)](https://github.com/gpeyre/muon-dynamics/blob/main/python/gaussians/gaussian_closed_form.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gpeyre/muon-dynamics/blob/main/python/gaussians/gaussian_closed_form.ipynb)
+
+Closed-form Gaussian dynamics, conserved leaves, and rank-one/rank-two covariance trajectories.
+
+### Gaussian KL Flow
+
+[![Gaussian KL flow](./assets/gaussian_kl_flow.png)](https://github.com/gpeyre/muon-dynamics/blob/main/python/gaussians-kl-flow/gaussian-kl-flow.ipynb)
+
+[![Open on GitHub](https://img.shields.io/badge/Open_on-GitHub-24292f?logo=github)](https://github.com/gpeyre/muon-dynamics/blob/main/python/gaussians-kl-flow/gaussian-kl-flow.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gpeyre/muon-dynamics/blob/main/python/gaussians-kl-flow/gaussian-kl-flow.ipynb)
+
+Centered Gaussian covariance flows for the KL functional, sampled by covariance arclength.
+
+### Two-Layer ReLU Training
+
+[![Two-layer ReLU training](./assets/mlp_spectral_flow_relu.png)](https://github.com/gpeyre/muon-dynamics/blob/main/python/mlp/mlp_spectral_flow_relu.ipynb)
+
+[![Open on GitHub](https://img.shields.io/badge/Open_on-GitHub-24292f?logo=github)](https://github.com/gpeyre/muon-dynamics/blob/main/python/mlp/mlp_spectral_flow_relu.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gpeyre/muon-dynamics/blob/main/python/mlp/mlp_spectral_flow_relu.ipynb)
+
+Mean-field training of a two-layer ReLU network in two dimensions under trace and Muon-type flows.
+
+### Shallow Attention
+
+[![Shallow attention spectral flow](./assets/attention_spectral_flow.png)](https://github.com/gpeyre/muon-dynamics/blob/main/python/attention/attention_spectral_flow.ipynb)
+
+[![Open on GitHub](https://img.shields.io/badge/Open_on-GitHub-24292f?logo=github)](https://github.com/gpeyre/muon-dynamics/blob/main/python/attention/attention_spectral_flow.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gpeyre/muon-dynamics/blob/main/python/attention/attention_spectral_flow.ipynb)
+
+Mean-field shallow multi-head attention trained against a random teacher across dense and sparse attention regimes.
 
 ## Reproducing the Numerics
 
