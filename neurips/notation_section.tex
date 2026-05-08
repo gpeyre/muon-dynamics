@@ -1,0 +1,105 @@
+% Requires: \usepackage{longtable,booktabs,array}
+\section{Notation}
+\label{sec:notation}
+
+This section collects the main notation used throughout the paper. The first table lists standard background notation, while the second table lists the notation introduced for the Spectral Wasserstein geometry.
+
+\begin{longtable}{@{}p{0.23\linewidth}p{0.39\linewidth}p{0.28\linewidth}@{}}
+\caption{Classical notation.}\label{tab:notation-classical}\\
+\toprule
+Notation & Name & First use \\
+\midrule
+\endfirsthead
+\toprule
+Notation & Name & First use \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+$\R^d$ & Euclidean space & Sec.~\ref{sec:flows} \\
+$\mathbb S^d$ & Symmetric matrices & App.~\ref{app:matrix-recap} \\
+$\mathbb S_+^d$ & PSD matrices & Sec.~\ref{sec:flows} \\
+$\mathbb S_{++}^d$ & Positive definite matrices & Thm.~\ref{thm:selector-structure-paper} \\
+$S\preceq T$ & Loewner order & Sec.~\ref{sec:flows} \\
+$I$, $\Id$ & Identity matrix/map & Sec.~\ref{sec:flows} \\
+$\tr(S)$ & Trace & Def.~\ref{def:monotone-norm} \\
+$\diag(a_i)$ & Diagonal matrix & Sec.~\ref{sec:flows} \\
+$\lambda(S)$ & Eigenvalues of $S$ & Sec.~\ref{sec:flows} \\
+$\|\cdot\|_F$ & Frobenius norm & Def.~\ref{def:matrix-lmo} \\
+$\langle\cdot,\cdot\rangle_F$ & Frobenius product & Def.~\ref{def:matrix-lmo} \\
+$\|A\|_{S_p}$ & Schatten $p$-norm & Sec.~\ref{sec:flows} \\
+$A^\dagger$ & Pseudoinverse & Eq.~\eqref{eq:muon-selector} \\
+$\cP_2(\R^d)$ & Measures with finite second moment & Def.~\ref{def:duality} \\
+$\delta_x$ & Dirac mass & Sec.~\ref{sec:flows} \\
+$T_\#\mu$ & Pushforward & Def.~\ref{def:monge} \\
+$\Pi(\mu,\nu)$ & Couplings & Def.~\ref{def:static} \\
+$L^2(\mu;\R^d)$ & Square-integrable vector fields & Def.~\ref{def:duality} \\
+$\nabla$, $\nabla_x$ & Euclidean gradient & Sec.~\ref{sec:flows} \\
+$\divv$ & Divergence & Eq.~\eqref{eq:measure-spectral-flow} \\
+$\delta\MF/\delta\mu$ & First variation & Sec.~\ref{sec:flows} \\
+$\Wtwo$ & Quadratic Wasserstein distance & Sec.~\ref{sec:intro} \\
+$\mathcal N(m,\Sigma)$ & Gaussian law & Prop.~\ref{thm:gaussian} \\
+$\Sigma$ & Covariance matrix & Prop.~\ref{thm:gaussian} \\
+$\Sd$ & Unit sphere & App.~\ref{app:homogeneous} \\
+$\nablaS$, $\divS$ & Spherical gradient/divergence & Prop.~\ref{prop:sphere} \\
+\end{longtable}
+
+\begin{longtable}{@{}p{0.23\linewidth}p{0.39\linewidth}p{0.28\linewidth}@{}}
+\caption{Main notation introduced in the paper.}\label{tab:notation-paper}\\
+\toprule
+Notation & Name & Introduction \\
+\midrule
+\endfirsthead
+\toprule
+Notation & Name & Introduction \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+$\gamma$ & Matrix norm on $\mathbb S_+^d$ & Sec.~\ref{sec:flows} \\
+$\gamma_p$ & Schatten geometry & Sec.~\ref{sec:flows} \\
+$p$, $q$ & Primal/dual exponents & Rem.~\ref{rem-kgamma-shatten} \\
+$\cK$ & Representing set & Def.~\ref{def:monotone-norm} \\
+$\mathcal P_\gamma$ & Polar set & App.~\ref{app:matrix-recap} \\
+$\mathcal K_{\gamma_p}$ & Schatten representing set & Rem.~\ref{rem-kgamma-shatten} \\
+$\mN(V)$ & Matrix tangent norm & Sec.~\ref{sec:flows} \\
+$\mJ_\gamma(G)$ & Matrix LMO & Def.~\ref{def:matrix-lmo} \\
+$\mJ_p(G)$ & Schatten matrix LMO & Prop.~\ref{prop:schatten} \\
+$X$ & Particle matrix & Sec.~\ref{sec:flows} \\
+$\mu_X$ & Empirical particle measure & Sec.~\ref{sec:flows} \\
+$\mF(X)$ & Particle objective & Sec.~\ref{sec:flows} \\
+$\MF(\mu)$ & Mean-field objective & Sec.~\ref{sec:flows} \\
+$\MN_\mu(v)$ & Measure tangent norm & Def.~\ref{def:duality} \\
+$\MJ_\gamma^\mu(g)$ & Measure-LMO & Def.~\ref{def:duality} \\
+$S_\mu(g)$ & Gradient covariance & Thm.~\ref{thm:selector-structure-paper} \\
+$Q_\mu^*$ & Inverse-trace minimizer & Thm.~\ref{thm:selector-structure-paper} \\
+$g_\mu$ & Wasserstein gradient & Sec.~\ref{sec:flows} \\
+$\Wg$ & Static Spectral Wasserstein distance & Def.~\ref{def:static} \\
+$\WQ{Q}$ & Fixed-metric transport cost & Thm.~\ref{thm:minmax} \\
+$c_\gamma$, $C_\gamma$ & Trace comparison constants & Prop.~\ref{prop:bounds} \\
+$\Wgbb$ & Dynamic Spectral Wasserstein distance & Def.~\ref{def:dynamic} \\
+$\cA(\mu,m)$ & Momentum action & Prop.~\ref{prop:momentum} \\
+$\WgM$ & Monge-restricted cost & Def.~\ref{def:monge} \\
+$\phi(z,x)$ & Feature map & Sec.~\ref{sec:mlp-meanfield} \\
+$H_\mu$ & Mean-field predictor & Sec.~\ref{sec:mlp-meanfield} \\
+$R(H)$ & Risk functional & Sec.~\ref{sec:mlp-meanfield} \\
+$\operatorname{MMD}(\mu,\nu)^2$ & Squared MMD & Sec.~\ref{sec:wasserstein-flows} \\
+$(Q,K,V,O)$ & Attention weights & Sec.~\ref{sec:wasserstein-flows} \\
+$N_{\mathrm{eff}}$ & Effective tokens & Sec.~\ref{sec:wasserstein-flows} \\
+$C_\rho$ & Data covariance & Sec.~\ref{sec:gaussian-linear} \\
+$B_\rho$ & Teacher cross-moment & Sec.~\ref{sec:gaussian-linear} \\
+$M_\mu$ & Learned linear predictor & App.~\ref{app:gaussian-linear} \\
+$A_\star$ & Teacher matrix & App.~\ref{app:gaussian-linear} \\
+$E_t$ & Linear prediction error & Prop.~\ref{app-prop:gaussian-linear-covariance} \\
+$r_i(t)$ & Modal predictor coefficient & Prop.~\ref{prop:modal-main} \\
+$s_i(t)$ & Modal variance & Prop.~\ref{prop:modal-main} \\
+$\beta_i$ & Teacher mode & Prop.~\ref{prop:modal-main} \\
+$\mathcal N(r,s)$ & Modal normalization & Prop.~\ref{prop:modal-main} \\
+$\mI_p(V)$ & Momentum constitutive map & Eq.~\eqref{eq:matrix-momentum} \\
+$F_h(\mu)$ & Linear measure functional & Thm.~\ref{thm:linearconvex} \\
+$\kappa$ & Geodesic-convexity constant & Def.~\ref{def:geoconvex} \\
+$\operatorname{Ent}_\nu(\mu)$ & Relative entropy & App.~\ref{app:convexity} \\
+$\Phi$ & Two-homogeneous feature map & App.~\ref{app:homogeneous} \\
+$\Pi_2(\mu)$ & Spherical projection & App.~\ref{app:homogeneous} \\
+$\UWg$ & Unbalanced spherical action & App.~\ref{app:homogeneous} \\
+\end{longtable}

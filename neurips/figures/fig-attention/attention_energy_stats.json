@@ -1,0 +1,10 @@
+{
+  "very_dense": {
+    "effective_tokens_mean": 15.989243507385254,
+    "effective_tokens_std": 0.004036244361808352
+  },
+  "very_sparse": {
+    "effective_tokens_mean": 2.1278050899505616,
+    "effective_tokens_std": 0.1222121135819087
+  }
+}

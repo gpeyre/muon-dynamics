@@ -1,0 +1,23 @@
+.DS_Store
+
+# arXiv export bundle generated from the paper sources.
+arxiv/
+
+# Local draft/archive material not needed for the public companion repo.
+draft/
+neurips/old/
+neurips/template/
+
+# LaTeX build products.
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+
+# Python/Jupyter caches.
+__pycache__/
+.ipynb_checkpoints/
