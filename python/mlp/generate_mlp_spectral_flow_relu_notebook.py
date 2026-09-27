@@ -416,6 +416,8 @@ cells = [
             theta_grid: np.ndarray,
             bandwidth: float = 0.10,
         ) -> np.ndarray:
+            from scipy.integrate import trapezoid
+
             # X columns: (u, v1, v2)
             u = X[:, 0]
             v = X[:, 1:3]
@@ -428,7 +430,7 @@ cells = [
             d = np.arctan2(np.sin(d), np.cos(d))  # wrap to (-pi,pi]
             K = np.exp(-0.5 * (d / bandwidth) ** 2) / (bandwidth * np.sqrt(2.0 * np.pi))
             dens = K @ w
-            area = np.trapz(dens, theta_grid)
+            area = trapezoid(dens, theta_grid)
             if float(area) > 1e-14:
                 dens = dens / area
             return dens

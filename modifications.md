@@ -1,3 +1,25 @@
+# GitHub Actions Compatibility Fix: 2026-09-27
+
+- Investigated failed run `36314997903`: both core jobs, all numerical tests,
+  notebook-source checks, and the four teaching examples passed. The paper
+  smoke run stopped in the MLP angular-density plot because NumPy 2.4 and
+  later no longer provide `np.trapz`; local NumPy 2.3.5 still provided it.
+- Replaced this call with `scipy.integrate.trapezoid` in the notebook and
+  its generator, preserving the existing NumPy/SciPy minimum versions and
+  the numerical quadrature rule.
+- Added a regression test that extracts the actual notebook helper, hides
+  `np.trapz` even on older NumPy, and checks unit-integral normalization,
+  nonnegativity, and the zero-weight case. It reproduced the original error
+  before the fix; all 12 tests pass after the fix.
+- Notebook/generator checks pass, and the corrected MLP smoke run and the
+  subsequent attention smoke run both complete locally with all eight PDFs.
+- Updated checkout, Python setup, and artifact upload to the verified
+  official v7 actions using Node.js 24. Pinned CI runners to `ubuntu-24.04`
+  to avoid the upcoming `ubuntu-latest` OS migration. These warnings were
+  separate from the NumPy error that caused the job failure.
+
+---
+
 # Computational Toolbox and Reproducibility Pass: 2026-09-27
 
 ## Organization and API
