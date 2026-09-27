@@ -1,3 +1,169 @@
+# Computational Toolbox and Reproducibility Pass: 2026-09-27
+
+## Organization and API
+
+- Added an installable `muon_dynamics` package with a NumPy/SciPy core and
+  separate PyTorch, convex-transport, notebook, and full-experiment extras.
+- Added Schatten gauges/root norms, matrix and weighted-particle LMOs for
+  `p >= 1/2`, blockwise LMOs, uncentered second moments, smoothed MMD energies
+  and forces, centered Gaussian KL/covariance vector fields, and full-coupling
+  static transport for `p=1,2,infinity`.
+- Made signs, particle-weight versus parameter-gradient scaling, endpoint
+  choices, numerical rank tolerance, and squared transport costs explicit.
+  Singular force covariances do not require inverse regularization.
+- Centralized the MMD, MLP, and attention spectral selectors in the tested
+  PyTorch implementation. Removed silent random perturbation, zero-update,
+  and gradient-descent fallbacks on MLP selector failures. Null singular
+  directions are suppressed with an explicit relative tolerance; very large
+  finite exponents also preserve this support when the dual exponent rounds
+  to one. Archived figures were not silently replaced.
+
+## Examples and Figure Reproduction
+
+- Added four short generated Jupyter notebooks in `python/examples/`, with
+  executed plots: spectral directions, particle MMD, convex static transport,
+  and Gaussian KL. The last uses an isotropic case with an exact covariance
+  solution, avoiding nonsmooth force-rank events in a first teaching example.
+- Added an isolated `scripts/reproduce.py` runner for all six paper notebooks
+  and the teaching examples. It supports reduced smoke runs, validates
+  generator/notebook agreement, saves executed notebooks, checks figure export,
+  and records package versions, source hashes, Git state, overrides, and errors.
+  It refuses to overwrite existing run directories or tracked paper figures.
+- Clearly labeled the paper's operator matching routine as a heuristic, not a
+  full spectral OT solve. Added a two-point example where splitting mass
+  strictly beats every matching, with a convex-solver regression check.
+- Corrected the legacy README-preview generator's obsolete `paper/figures`
+  output path and stopped it from producing outdated top-level notebooks.
+- Expanded the root README and `python/README.md`, added API/reproduction
+  guides, and added preview figures and GitHub links for the new notebooks.
+  Clarified that attention trials redraw both teacher and student, and that
+  legacy Gaussian KL galleries use numerical regularization and arclength.
+- Added GitHub Actions configuration for core tests on Python 3.10/3.12 and
+  optional-backend tests plus all notebook smoke runs on Python 3.12.
+- Verified the GitHub URL in the main-body Contributions paragraph and
+  expanded its sentence to mention the toolbox and illustrative notebooks.
+  Rebuilt the manuscript PDF and arXiv source bundle, and visually checked
+  the Contributions page.
+
+## Verification and Limits
+
+- Editable installation and wheel build succeeded locally on Python 3.14.
+- All 11 numerical tests pass, covering LMO optimality identities, rank-deficient endpoints,
+  extreme exponents, rotation equivariance, weighted/replicated particles,
+  NumPy/PyTorch agreement, optional-dependency isolation, finite-difference
+  MMD derivatives, Gaussian dissipation, and exact small transport examples.
+- All four teaching notebooks executed successfully. All six paper notebooks
+  executed with reduced smoke settings and produced the expected 70 PDFs.
+  All notebook/generator consistency checks pass. Example plots were inspected.
+- The full-size MLP initialization validator retains the manuscript's
+  dissipation ratio `2.5576465` and clipped-decrease ratio `0.9233357`.
+- Full-length MLP, attention, MMD, and static experiments were not rerun in
+  this code pass. Smoke runs check plumbing and export, not scientific
+  reproducibility or convergence. No new benchmark or general integrator
+  accuracy guarantee is claimed. GitHub Actions is configured but has not
+  been run remotely. No commit or push was performed.
+- No license was previously present. A code-license choice was requested;
+  no license is imposed without the author's decision.
+
+---
+
+# Post-Correction Mathematical Recheck: 2026-09-27
+
+Rechecked the corrected proofs and nearby dependencies, and recorded the
+details in the new opening section of `audit-maths.md`.
+
+- Corrected the Gaussian boundary proof's remainder from an ambiguous
+  `O(W_2^2)` to the cost of the **chosen coupling**, exactly as required by
+  the main transport--Taylor hypothesis. The boundary flow conclusion is
+  unchanged. Made its finite action and almost-everywhere identities explicit.
+- Added the necessary factor `T` when bounding the spherical endpoint
+  distance by an action computed on `[0,T]`, with the time-rescaling proof.
+- Restricted the Gaussian-preservation hypothesis to states in the energy
+  domain, excluded singular Gaussians from the entropy example, and required
+  smooth dependence for the general moment-functional example.
+- Made root-norm comparison constants independent of the Hilbert target
+  explicitly, and justified the entropy perturbation expansion under its
+  changing reference measure using two-sided velocity-norm bounds.
+- Qualified the rank-invariant and nonlocality wording where stationary
+  modes or dimension-one geometries are exceptions.
+- Extended `python/gaussians/validate_gaussians.py` with independent matrix
+  LMO/covariance checks and Gaussian entropy directional derivatives, including
+  the nonconvex root-norm range. Maximum errors were `5.33e-15` for covariance
+  dynamics, `8.89e-15` for matrix action/dissipation, and `5.75e-10` for the
+  entropy finite difference. Reran the 24-case rank-event validation.
+- Rebuilt and visually checked the updated 58-page PDF and refreshed the
+  arXiv bundle. No undefined references/citations or overfull boxes remain;
+  the existing underfull notice on a figure page is unchanged.
+
+The recheck found no further error in the corrected central results after
+these repairs. Global PDE well-posedness, converse spherical lifting, and
+uniform local entropy P-L theory remain outside the proved statements.
+
+# Mathematical Audit Corrections: 2026-09-27
+
+Implemented the repair plan in `audit-maths.md` in `neurips/paper.tex` and
+`neurips/notation_section.tex`. The original audit and the earlier release
+log below are retained as historical records.
+
+## Corrections by Finding
+
+| Finding | Implemented correction |
+| --- | --- |
+| A1: homogeneous selection | Appendix J now fixes the projected matrix selector as a function of the force second moment. The spherical PDE assumes a one-homogeneous Borel velocity, zero at the origin, finite action, and Wasserstein continuity. The proof justifies the quadratic-growth test by cutoffs. Smoothness of the feature/energy is explicit; ReLU requires a separate nonsmooth argument. |
+| A2: block normalization | Appendix B distinguishes the sum gauge, which gives separately scaled squared-norm LMOs, from the maximum of block operator norms. The latter gives raw blockwise polar directions with a single common multiplier. Added fixed block learning-rate weights and aligned the main-text summaries. |
+| A3: velocity versus speed | Removed the unrestricted identification of velocity norm and metric speed. Stated the representative minimization formally and retained the proved speed equality for descent flows. Replaced the entropy-convexity proof's unsupported minimal-velocity step by a fixed optimal quadratic-cost argument along the given geodesic. |
+| A4: entropy slope | Added `prop:entropy-slope`, identifying the ambient entropy slope under positive C1 densities and a log-density ratio with bounded Hessian. Its proof uses a one-sided entropy inequality and compact smooth transports. Gaussian KL flows now have a separate metric verification, and smooth entropy perturbations explicitly satisfy the lemma. |
+| A5: covariance rank loss | Restricted the inverse-covariance formula to positive-definite intervals. Proved the general modal invariant and finite-time extinction criterion. Added `app-prop:gaussian-boundary`, verifying the canonical zero-eigenvalue continuation directly from Gaussian random variables and the metric energy identity, conditionally on the modal solution. Explained which plotted targets require it, and added independent event/refinement checks. |
+| A6: spherical geometry | Specified the admissible unbalanced paths, distinguished equality of projected actions from equality of endpoint distances, and supplied a counterexample to an isometry of fixed lifts. Proved the spherical metric property by comparison with WFR and action concatenation. No converse lifting theorem is claimed. |
+| A7: attention domain | A finite sixth parameter moment is given as a sufficient force-integrability condition for bounded data and targets. Moment preservation and selector regularity remain separate requirements. |
+| A8: radial powers | Supplied the local form-bound argument for the singular effective potential when the radial exponent lies between one and two, followed by tail control and compact embedding. Clarified elliptic regularity in the ridge-eigenfunction obstruction. |
+| A9: local dissipation | Replaced bilinear “Dirichlet form” language by “Dirichlet energy.” Explained that the leading small-amplitude spectral PDE is generally nonlinear, gave its formal dissipation identity, and distinguished the variational local constant from a uniform local or global P-L theorem. |
+| A10: consistency | Fixed the missing divergence command, separated SVD notation from the Schatten exponent, made the operator endpoint convention explicit, declared uncentered second-moment terminology, and corrected the attention clock description. The definition of a flow now includes absolute continuity and the integrated energy identity. |
+
+## Additional Safeguards
+
+- Restricted the commuting Gaussian formula explicitly to `p >= 1` and
+  included the `p = 1/2` counterexample from the audit.
+- Strengthened the root-norm characterization: it is enough to test the
+  norm property on square `d x d` matrices. The proof derives Loewner
+  monotonicity and extends the triangle inequality to arbitrary Hilbert
+  targets by compression.
+- None of these repairs asserts global existence or uniqueness for the
+  general nonlinear PDE. The new boundary proposition verifies a specified
+  modal continuation; the entropy proposition verifies an existing
+  positive-definite Gaussian moment curve. The finite Newton--Schulz
+  dissipation statement remains distinct from a fixed-metric flow.
+
+## Verification
+
+- The Gaussian algebra validator passes: maximum tested vector-field error
+  `3.55e-15`, interior-invariant derivative error `8.88e-16`.
+- New `python/gaussians/validate_rank_events.py` independently integrates
+  transformed variances with rank-loss and zero-error events for all 24
+  published parameter cases over `[0,18]`. It also checks nonnegativity,
+  energy decay, and persistence of extinct eigenvalues.
+- It detects 11 rank-loss events and 12 target events. Comparing reference
+  tolerances gives maximum sampled eigenvalue discrepancy `1.34e-7`,
+  rank-event time discrepancy `4.83e-8`, and target-event time discrepancy
+  `2.49e-5`. Finite-p target events are nontransverse and less accurately
+  localized than rank loss; the last remaining residual approaches zero
+  asymptotically and is not counted as a finite target event.
+- Local notebook-RK4 refinement across every detected event reduces the
+  maximum eigenvalue error from `3.42e-4` at step `2e-4` to `8.53e-5` at
+  step `5e-5`. These checks are not a certified full-trajectory error bound
+  and do not assume fourth-order convergence at nonsmooth events. Existing
+  figures are retained; full neural-network training was not rerun.
+- Rebuilt the 58-page `neurips/paper.pdf` and the 65-file arXiv source
+  bundle. The final LaTeX log has no undefined references/citations or
+  overfull boxes; one underfull vertical-box notice remains on an existing
+  figure page. Inspected rendered pages covering the changed definitions,
+  proofs, block gauges, Gaussian continuation, Poincare discussion, spherical
+  reduction, and notation table. `git diff --check` passes.
+- Independently checked the two-block scaling and nonconvex commuting
+  counterexample numerically. The numerical README now documents the new
+  validator and the distinction between interior invariants and boundary
+  continuation. No bibliography or historical rebuttal was changed in this pass.
+
 # Finalization After Review: 2026-09-27
 
 This pass prepares `neurips/` as a complete, non-anonymous preprint. It uses

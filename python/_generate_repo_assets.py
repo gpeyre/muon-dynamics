@@ -1,3 +1,8 @@
+"""Legacy README preview generator, not the paper reproduction entry point.
+
+Use scripts/reproduce.py for paper figures and python/examples/ for tutorials.
+"""
+
 from pathlib import Path
 from textwrap import dedent
 import os
@@ -6,10 +11,9 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 PYTHON_DIR = ROOT / "python"
-FIG_DIR = ROOT / "paper" / "figures"
+FIG_DIR = ROOT / "assets"
 
 os.environ.setdefault("MPLCONFIGDIR", tempfile.mkdtemp(prefix="mplconfig_"))
-os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
 
 import matplotlib.pyplot as plt
 import nbformat as nbf
@@ -77,18 +81,8 @@ def mmd_energy_squared(x: torch.Tensor, y: torch.Tensor, eps: float = 1e-2) -> t
 
 
 def schatten_direction(grad: torch.Tensor, p):
-    if p == 1:
-        return -grad
-    u, s, vh = torch.linalg.svd(grad, full_matrices=False)
-    if p == float("inf"):
-        return -s.sum() * (u @ vh)
-    r = 2.0 * p
-    q = r / (r - 1.0)
-    norm_q = (s.pow(q).sum()).pow(1.0 / q)
-    if float(norm_q) < 1e-14:
-        return torch.zeros_like(grad)
-    weights = s.pow(q - 1.0)
-    return -(norm_q.pow(2.0 - q)) * ((u * weights.unsqueeze(0)) @ vh)
+    from muon_dynamics.torch import schatten_lmo
+    return schatten_lmo(grad, p)
 
 
 def run_flow(x0: torch.Tensor, y: torch.Tensor, p, step_size: float, steps: int, eps: float):
@@ -216,7 +210,6 @@ def notebook_preamble_cells():
             import torch
             import matplotlib.pyplot as plt
 
-            os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
             os.environ.setdefault("MPLCONFIGDIR", tempfile.mkdtemp(prefix="mplconfig_"))
 
             ip = get_ipython()
@@ -747,15 +740,11 @@ def generate_figures():
 
 
 def main():
-    PYTHON_DIR.mkdir(exist_ok=True)
+    # Legacy three-geometry README previews, not the paper experiments.
+    FIG_DIR.mkdir(exist_ok=True)
     labels, results = generate_figures()
 
-    with open(PYTHON_DIR / "mmd_flow.ipynb", "w", encoding="utf-8") as f:
-        nbf.write(build_mmd_notebook(), f)
-    with open(PYTHON_DIR / "static.ipynb", "w", encoding="utf-8") as f:
-        nbf.write(build_static_notebook(), f)
-
-    print("wrote notebooks and figures")
+    print("wrote README previews")
     for p in [1, 2, float("inf")]:
         print(labels[p], "final loss =", results[p]["losses"][-1])
 

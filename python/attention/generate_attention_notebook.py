@@ -195,15 +195,8 @@ cells = [
     code(
         r"""
         def spectral_selector(G: torch.Tensor, p):
-            if p == 1:
-                return -G
-            if p == float("inf"):
-                U, S, Vh = torch.linalg.svd(G, full_matrices=False)
-                nuclear = S.sum()
-                if float(nuclear) < 1e-12:
-                    return torch.zeros_like(G)
-                return -nuclear * (U @ Vh)
-            raise ValueError("Only p=1 and p=inf are implemented.")
+            from muon_dynamics.torch import schatten_lmo
+            return schatten_lmo(G, p)
 
         def run_flow(
             X0: torch.Tensor,

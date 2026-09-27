@@ -97,12 +97,8 @@ cells = [
 
 
         def schatten_direction(grad: torch.Tensor, p):
-            if p == 1:
-                return -grad
-            if p == float("inf"):
-                U, S, Vh = torch.linalg.svd(grad, full_matrices=False)
-                return -S.sum() * (U @ Vh)
-            raise ValueError("Only p=1 and p=inf are supported in this notebook.")
+            from muon_dynamics.torch import schatten_lmo
+            return schatten_lmo(grad, p)
 
 
         def run_flow(X0: torch.Tensor, Y: torch.Tensor, p, step_size: float, steps: int, eps: float = 1e-2):

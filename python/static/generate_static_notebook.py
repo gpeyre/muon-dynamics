@@ -27,6 +27,11 @@ cells = [
         This notebook builds Figure 1 panels from independent PDFs:
         - pairing plots (`p=1`, `p=\infty`),
         - five interpolation snapshots per `p` (`t=0,0.25,0.5,0.75,1`) rendered as quantized Parzen level sets.
+
+        The trace assignment is optimal. The operator matching below is a
+        permutation heuristic, not a certified spectral transport optimizer;
+        an optimal spectral coupling can split mass. For a convex solve over
+        all couplings, use `muon_dynamics.solve_transport` on a small cloud.
         """
     ),
     code(
@@ -219,7 +224,7 @@ cells = [
                 return perm, cost
 
             if p == np.inf:
-                # Alternating max-min approximation of max_Q min_pi with rank-1 Q.
+                # Heuristic restricted to permutations and rank-one cost matrices.
                 q = np.array([1.0, 0.0], dtype=float)
                 best_perm = None
                 best_cost = np.inf

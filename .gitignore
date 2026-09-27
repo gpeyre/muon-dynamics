@@ -21,6 +21,12 @@ neurips/template/
 # Python/Jupyter caches.
 __pycache__/
 .ipynb_checkpoints/
+*.egg-info/
+build/
+dist/
+.venv/
+.pytest_cache/
+outputs/
 
 # Generated verification artifacts and manuscript submission archive.
 tmp/

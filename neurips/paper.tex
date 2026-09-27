@@ -119,8 +119,9 @@ Benamou--Brenier formulations in Theorem~\ref{thm:staticdynamic}, yielding the
 metric property in Corollary~\ref{cor:metric} and explicit geodesics in
 Corollary~\ref{cor:geodesic}. Section~\ref{sec:wasserstein-flows} identifies the
 normalized PDE as the corresponding metric gradient flow and discusses MLP,
-shallow-attention, MMD, and linear-network examples. The code used to reproduce
-the numerical experiments is available at
+shallow-attention, MMD, and linear-network examples. A Python computational
+toolbox, illustrative notebooks, and code to reproduce the numerical
+experiments are available at
 \url{https://github.com/gpeyre/muon-dynamics}.
 
 \textbf{Scope.} This paper does not attempt to explain why Muon-type
@@ -276,6 +277,9 @@ $\mu$-almost everywhere and the unique optimal field is zero.
 For Schatten gauges, this finite-dimensional LMO gives the explicit formula in
 Corollary~\ref{cor:schatten-measure-selectors}; in particular, it covers the
 Muon endpoint.
+For force and displacement fields, we use ``covariance'' to mean the
+uncentered second-moment matrix. Covariances of Gaussian laws retain their
+usual centered meaning.
 
 Following \citet{AmbrosioGigliSavare2008}, define the Wasserstein force by
 \[
@@ -289,7 +293,8 @@ where the first variation satisfies
     =
     \int \frac{\delta\MF}{\delta\mu}\,d\sigma
 \]
-for signed perturbations $\sigma$ of zero total mass.
+for signed perturbations $\sigma$ of zero total mass for which the perturbed
+measures are admissible, with one-sided derivatives when necessary.
 The force $g_\mu$ is a cotangent quantity, not the spectral velocity:
 the latter is $\MJ_\gamma^\mu(g_\mu)$.
 %
@@ -326,7 +331,14 @@ For suitable continuous families it can be substantially simpler: affine
 velocities preserve Gaussian distributions and close the dynamics on their
 moments (Appendix~\ref{app:gaussian-linear}).
 %
-The major question left open by the construction above is whether \eqref{eq:measure-spectral-flow} is the gradient flow of an actual distance on probability measures. The next two sections answer this question: first by defining a static Spectral Wasserstein cost, and then by proving that, for monotone norms, this cost admits a Benamou--Brenier dynamic formulation whose infinitesimal norm is precisely $\MN_\mu$.
+The major question left open by the construction above is whether
+\eqref{eq:measure-spectral-flow} is the gradient flow of an actual distance
+on probability measures. The next two sections define this distance and
+prove a Benamou--Brenier formula with velocity action $\MN_\mu^2$.
+Different velocities may generate the same continuity equation, so metric
+speed need not equal the norm of an arbitrary representative.
+Theorem~\ref{prop:formalGF} establishes equality for the selected descent
+velocity under its stated hypotheses.
 
 
 \begin{remark}[Connection with Muon]
@@ -337,7 +349,8 @@ potential. Momentum can be modeled by an exponentially averaged force
 variable, leading in the mean-field limit to a phase-space Liouville equation;
 this is no longer a gradient flow on the position marginal alone, and thus lies
 partly outside the Spectral Wasserstein geometry developed below.
-Blockwise normalization, in contrast, is exactly covered by a block gauge.
+Blockwise normalization is covered by block gauges, with different gauges
+for independently scaled LMOs and for raw polar updates.
 The same appendix distinguishes these deterministic extensions from noisy
 minibatch updates, for which normalization and expectation do not commute.
 \end{remark}
@@ -728,11 +741,18 @@ $|\mu'|_{\gamma}(t)\coloneqq\lim_{h\to0}\Wg(\mu_{t+h},\mu_t)/|h|$, whenever
 the limit exists, and the local slope of $\MF$ is
 $|\partial\MF|_{\gamma}(\mu)\coloneqq
 \limsup_{\nu\to\mu}(\MF(\mu)-\MF(\nu))_+/\Wg(\mu,\nu)$.
-A $\Wg$-gradient flow of $\MF$ is a curve of maximal slope, i.e., a curve
-satisfying the energy dissipation identity
-$\frac{d}{dt}\MF(\mu_t)
-=-\frac12|\mu'|_{\gamma}(t)^2
--\frac12|\partial\MF|_{\gamma}(\mu_t)^2$.
+We use the energy-identity formulation of a curve of maximal slope: the curve
+and its energy are locally absolutely continuous, and, for every $s\le t$,
+\[
+ \MF(\mu_s)-\MF(\mu_t)
+ =\frac12\int_s^t\bigl(|\mu'|_\gamma(r)^2
+                       +|\partial\MF|_\gamma(\mu_r)^2\bigr)\,dr.
+\]
+The velocity action is minimized over representatives of the same measure
+derivative, formally
+$\inf\{\MN_\mu(v):-\divv(\mu v)=\dot\mu\}$.
+We will use the speed bound supplied by BB and prove equality for the LMO
+flow, without assuming equality for every velocity field.
 
 \begin{theorem}[$\Wg$ gradient flow]
 \label{prop:formalGF}
@@ -824,8 +844,14 @@ This is the standard mean-field representation of a two-layer multilayer percept
 The notation is a deliberate departure from usual machine-learning conventions: the network input is denoted by $z$, while the trainable variable is denoted by $x$ so that it matches the transport notation used throughout the paper. 
 Here $d$ is the sum of the block dimensions of $u$ and $v$. The experiment
 normalizes the single $n\times d$ particle matrix. Separate normalization of
-inner and outer weight blocks is also covered, using the block gauge of
-Appendix~\ref{sec:muon-extensions}; these are different choices of geometry. A basic example is the quadratic risk $R(H)=\frac12\int \abs{H(z)-y^\star(z)}^2\,d\rho(z)$, or its empirical version on a dataset. Because $H_\mu$ depends linearly on $\mu$, this makes $\MF(\mu)$ a quadratic interaction functional. These energies are of MMD-type \citep{GrettonBorgwardtRaschSchoelkopfSmola2012}, which is why the MMD experiment below is a natural test case for the Spectral Wasserstein flow.
+inner and outer weight blocks is also covered, using the sum or maximum block
+gauges of Appendix~\ref{sec:muon-extensions}, depending on the scalar
+normalization of each update. A basic example is the quadratic risk
+$R(H)=\frac12\int \abs{H(z)-y^\star(z)}^2\,d\rho(z)$, or its empirical
+version on a dataset. Because $H_\mu$ depends linearly on $\mu$, this makes
+$\MF(\mu)$ a quadratic interaction functional. These energies are of MMD-type
+\citep{GrettonBorgwardtRaschSchoelkopfSmola2012}, which is why the MMD experiment
+below is a natural test case for the Spectral Wasserstein flow.
 %
 In Figure~\ref{fig:mlp-trajectories}, we train a two-dimensional to
 one-dimensional ReLU network, with $\sigma(s)=\max(s,0)$, particles
@@ -848,9 +874,11 @@ Changing $p$ visibly changes the paths and the loss profile on these
 normalized plots. We do not infer an intrinsic convergence-rate or
 wall-clock advantage from this comparison.
 %
-The ReLU case, and more generally any positively two-homogeneous feature map
-$\phi$, admits a spherical reduction leading to a generalized unbalanced
-transport geometry; see Appendix~\ref{app:homogeneous}.
+The positively two-homogeneous structure of ReLU motivates a spherical
+reduction of the energy and homogeneous velocity action. The corresponding
+regularity and selector assumptions are stated in
+Appendix~\ref{app:homogeneous}; the nonsmooth ReLU case requires its own
+chain-rule justification.
 
 
 
@@ -884,7 +912,27 @@ transport geometry; see Appendix~\ref{app:homogeneous}.
 \paragraph{Mean-field shallow attention.}
 Using the same spectral-flow construction, we also consider a shallow mean-field multi-head attention model. This is a useful stress test because attention uses softmax nonlinearities, precisely the regime where Muon-type spectral normalization is empirically attractive. A datum is a sequence $z=(z_1,\ldots,z_m)$ of tokens in $\R^{d_T}$. A head is a particle $x=(Q,K,V,O)$, with $Q,K,V,O\in\R^{d_H\times d_T}$, so $x\in\R^d$ with $d=4d_Hd_T$. Its elementary feature is the softmax attention map $\phi(z,x)_j\coloneqq O^\top\sum_{i=1}^m \frac{\exp(\langle Qz_j,Kz_i\rangle/\sqrt{d_H})}{\sum_{\ell=1}^m\exp(\langle Qz_j,Kz_\ell\rangle/\sqrt{d_H})}Vz_i$, and the mean-field layer is again $H_\mu(z)=\int\phi(z,x)d\mu(x)$. For an empirical measure $\mu_X$, this is a multi-head attention layer averaged over an arbitrary number $n$ of heads, which is the natural mean-field analogue of increasing the number of heads without fixing a finite architecture. 
 %%
-Figure~\ref{fig:attention-trajectories} reports an experiment with $m=16$ tokens, $d_T=4$, and $d_H=3$: we fit a random five-head teacher by least squares using a student with $n=200$ heads, and compare the trace and operator geometries over five paired trials, each with a new teacher and student initialization. The chosen unfolding is a single $200\times48$ particle matrix. The query/key scale controls the sparsity of the teacher attention matrix. We quantify sparsity through the effective number of attended tokens $N_{\mathrm{eff}}\coloneqq(\sum_i w_i^2)^{-1}$ averaged over attention rows: the dense high-temperature regime has $N_{\mathrm{eff}}\approx 16$ out of $m=16$, while the sparse low-temperature regime has $N_{\mathrm{eff}}\approx 2.1$. The $p=1$ and $p=\infty$ horizons are rescaled so that small-time energy decay rates are comparable; even after this normalization, changing $p$ strongly affects the convergence profile and $p=\infty$ reaches a lower energy during the first phase.
+The measure-level oracle requires $g_\mu\in L^2(\mu)$, which is not automatic
+from $\mu\in\cP_2$. For bounded covariates and targets, the output has at most
+quadratic parameter growth, but derivatives in $Q$ and $K$ can have cubic
+growth. A finite sixth parameter moment is a sufficient integrability
+condition for the least-squares force. Preservation of this moment bound and
+regularity of the selected velocity remain additional requirements for a
+rigorous flow application.
+
+Figure~\ref{fig:attention-trajectories} reports an experiment with $m=16$
+tokens, $d_T=4$, and $d_H=3$: we fit a random five-head teacher by least squares
+using a student with $n=200$ heads, over five paired trials with new teacher
+and student initializations. The unfolding is a single $200\times48$ particle
+matrix. The query/key scale controls the teacher's attention sparsity,
+measured by the effective number of attended tokens
+$N_{\mathrm{eff}}\coloneqq(\sum_i w_i^2)^{-1}$ averaged over attention rows.
+The dense high-temperature regime has $N_{\mathrm{eff}}\approx16$, while the
+sparse low-temperature regime has $N_{\mathrm{eff}}\approx2.1$.
+The plots use separately normalized nominal horizons, with the safeguards
+specified in Appendix~\ref{sec:numerical-protocol}; they are not calibrated
+intrinsic flow times. The different loss profiles illustrate the dependence
+on the geometry without establishing a convergence-rate ordering.
 
 \begin{figure}[!h]
 \centering
@@ -1263,9 +1311,9 @@ The next proposition gives the explicit LMO associated with each Schatten geomet
 \begin{proposition}[Explicit Schatten selectors]
 \label{prop:schatten}
 Let $\gamma=\gamma_p=\norm{\cdot}_{S_p}$, let $r=2p$, and let
-$q=\frac{r}{r-1}=\frac{2p}{2p-1}$ be the dual exponent. If
+$q=r'=2p/(2p-1)$ be the dual exponent, with $q=1$ for $p=\infty$. If
 $$
-G=U_r\diag(\sigma_i)W_r^\top
+G=U\diag(\sigma_i)W^\top
 $$
 is a compact singular value decomposition over the positive singular values,
 then
@@ -1273,19 +1321,19 @@ $$
 \mJ_p(G)
 =
 -\norm{G}_{S_q}^{2-q}\,
-U_r\diag(\sigma_i^{q-1})W_r^\top.
+U\diag(\sigma_i^{q-1})W^\top.
 $$
 For $G=0$, set $\mJ_p(G)=0$.
 In particular,
 \begin{itemize}
 \item $p=1$: $\mJ_1(G)=-G$, which recovers ordinary gradient flow;
-\item $p=2$: $\mJ_2(G)=-\norm{G}_{S_{4/3}}^{2/3}\,U_r\diag(\sigma_i^{1/3})W_r^\top$, which we call the Frobenius-intermediate normalization;
+\item $p=2$: $\mJ_2(G)=-\norm{G}_{S_{4/3}}^{2/3}\,U\diag(\sigma_i^{1/3})W^\top$, which we call the Frobenius-intermediate normalization;
 \item $p=\infty$:
 \begin{equation}
 \label{eq:muon-selector}
 \mJ_\infty(G)
 =
--\norm{G}_{S_1}\,U_rW_r^\top
+-\norm{G}_{S_1}\,UW^\top
 =
 -\tr((G^\top G)^{1/2})\,G\,(G^\top G)^{\dagger/2},
 \end{equation}
@@ -1296,7 +1344,7 @@ which is the Muon normalization.
 \begin{proof}
 The displayed formula is the negative gradient of
 $\frac12\norm{G}_{S_q}^2$ when $1<q\le2$. At the endpoint $q=1$, the compact
-factor $U_rW_r^\top$ is a canonical partial-polar subgradient; it also fixes
+factor $UW^\top$ is a canonical partial-polar subgradient; it also fixes
 the value on the null singular subspaces.
 \end{proof}
 
@@ -1344,7 +1392,7 @@ reduction and the lifted selector.
 \begin{corollary}[Schatten measure selectors]
 \label{cor:schatten-measure-selectors}
 Let $\gamma=\gamma_p=\|\cdot\|_{S_p}$ and set
-$q=2p/(2p-1)$. Then
+$q=(2p)'$, with $q=1$ for $p=\infty$. Then
 $$
 \MJ_{\gamma_p}^\mu(g)(x)
 =
@@ -2136,7 +2184,7 @@ arguments without further analysis.
 Under a fast-resampling closure with fixed-variance random force fields,
 the candidate transport equation is
 \[
- \partial_t\mu_t+divv\!\left(
+ \partial_t\mu_t+\divv\!\left(
   \mu_t\,\mathbb E_\xi[\MJ_\gamma^{\mu_t}(g_{\mu_t}+\xi)]\right)=0.
 \]
 The covariance inside each LMO is that of the entire random force field;
@@ -2157,11 +2205,9 @@ $\MJ_\gamma^\mu(g_\mu)-\varepsilon\nabla\log\rho$.
 Thus this same entropy-penalization interpretation does not carry over.
 
 \paragraph{Block-wise normalization.}
-When training multilayer perceptrons, Muon is often applied independently to
-the outer weights $u$ and inner weights $v$. In the mean-field notation
-$x=(u,v)$, this corresponds to normalizing the two blocks separately rather
-than applying one normalization to the concatenated parameter. This is still
-covered by our framework through a block gauge: for
+For parameters $x=(u,v)$, separate normalization of the outer and inner
+weight blocks corresponds to a block gauge. The choice depends on whether
+each block uses its own squared-norm LMO or an unscaled polar update. For
 $S=\left(\begin{smallmatrix}S_{11}&S_{12}\\ S_{21}&S_{22}\end{smallmatrix}\right)\succeq0$, define
 $$
 \gamma_{\rm blk}(S)\coloneqq \gamma_1(S_{11})+\gamma_2(S_{22}),
@@ -2175,12 +2221,31 @@ extension to the whole symmetric space.
 Furthermore, writing $v=(v_1,v_2)$ gives
 $\MN_\mu(v)^2=\gamma_1(\int v_1v_1^\top d\mu)
 +\gamma_2(\int v_2v_2^\top d\mu)$; the LMO objective separates into two
-independent minimizations. Thus the static and dynamic theory and the
-conditional gradient-flow theorem apply verbatim to independent block
-normalization, and to any finite number of blocks. This does not separate
-the underlying joint measure into independent marginals: the static problem
-still optimizes over a common coupling. The chosen particle/block layout
-must match the parameterization whose updates are being modeled.
+independent minimizations. For operator block gauges and a gradient matrix
+partitioned as $G=(G_1,\ldots,G_B)$, the resulting update in block $b$ is
+$-\|G_b\|_*P_b$, where $P_b$ is its compact polar factor. These individual
+speed factors cannot generally be absorbed into a single time change.
+
+To model raw blockwise polar updates with one common clock, instead use
+\[
+ \gamma_{\rm max}(S)=\max_{1\le b\le B}\lambda_{\max}(S_{bb}).
+\]
+This is again a positive monotone convex gauge. Its tangent norm is
+$\mN(V)=\max_b\|V_b\|_{\rm op}$, with dual
+$\mN^*(G)=\sum_b\|G_b\|_*$. The unit-ball formula
+\eqref{eq:lmo-unit-ball} therefore gives the canonical selection
+\[
+ \mJ_{\rm max}(G)_b=-\left(\sum_a\|G_a\|_*\right)P_b,
+\]
+where $P_b=0$ for a zero-gradient block. Thus it follows the raw blockwise
+polar trajectories up to a common time change away from stationarity.
+Fixed positive block learning-rate factors $\eta_b$ are obtained by replacing
+the maximum gauge by $\max_b\lambda_{\max}(S_{bb})/\eta_b^2$.
+The static and dynamic theory and conditional gradient-flow theorem apply
+to both constructions, for any finite number of blocks. Neither construction
+replaces the joint measure by independent marginals: the static problem still
+uses a common coupling, and the chosen block layout must match the modeled
+parameterization.
 
 \subsection{Time Scales and Discretization}
 \label{sec:smoothness-discretization}
@@ -2535,7 +2600,8 @@ stated finite-dimensional problem.
 The next corollary shows that commuting covariances lead to a closed form for the Schatten family, exactly as in the classical Bures case.
 \begin{corollary}[Commuting covariances]
 \label{app-cor:commuting}
-If $\Sigma_0$ and $\Sigma_1$ commute, then for Schatten norms $\gamma_p$ one has
+If $\Sigma_0$ and $\Sigma_1$ commute, then for Schatten norms $\gamma_p$,
+$1\le p\le\infty$, one has
 $$
 \mathsf B_{\gamma_p}(\Sigma_0,\Sigma_1)^2
 =
@@ -2580,7 +2646,15 @@ inequalities, proving the claim.
 
 The following remark clarifies the scope of Corollary~\ref{app-cor:commuting}.
 \begin{remark}
-The commuting formula is stated for Schatten norms because their value depends only on the eigenvalues of the displacement covariance. For more general norms on $\mathbb S_+^d$, even when $\Sigma_0$ and $\Sigma_1$ commute, one should not expect a closed form depending only on the eigenvalues $(\sqrt{a_i}-\sqrt{b_i})^2$, since the norm itself may retain basis-dependent information.
+The commuting formula is stated for Schatten norms because their value
+depends only on eigenvalues. A general gauge may retain basis-dependent
+information. The restriction $p\ge1$ is also essential: at $p=1/2$, take
+$\Sigma_0=\diag(4,1)$ and $\Sigma_1=\diag(1,4)$. In the basis
+$(e_1+e_2)/\sqrt2,(e_1-e_2)/\sqrt2$, the map
+$Y_1=X_1$, $Y_2=X_2-\frac65X_1$ has the required target covariance and
+displacement covariance $\diag(0,18/5)$. Its cost is $18/5$, strictly below
+the value $\gamma_{1/2}(I)=4$ predicted by the commuting expression.
+Thus the root-norm extension below does not extend this particular formula.
 \end{remark}
 
 
@@ -2868,15 +2942,10 @@ since $T_v^*T_v=\int vv^\top\,d\mu$.
 
 \begin{proposition}[Characterization]
 \label{prop:root-norm-characterization}
-A positive one-homogeneous $\gamma$ is a root-norm gauge if and only if it can
-be written as
-$$
-    \gamma(S)=\mathfrak N(S^{1/2})^2,
-    \qquad S\succeq0,
-$$
-where $\mathfrak N$ is a compatible family of norms on finite-rank operators
-$\R^d\to\mathcal H$, indexed by the target Hilbert space $\mathcal H$ and
-invariant under isometric embeddings of the target. In the spectral case,
+A positive one-homogeneous $\gamma$ is a root-norm gauge if and only if
+$V\mapsto\gamma(V^\top V)^{1/2}$ is a norm on $\R^{d\times d}$.
+Equivalently, $\gamma(S)=\mathfrak N(S^{1/2})^2$ for a left-orthogonally
+invariant norm $\mathfrak N$ on square matrices. In the spectral case,
 this is equivalent to
 $$
     \gamma(S)=\varphi\!\left(\lambda(S)^{1/2}\right)^2
@@ -2886,25 +2955,32 @@ monotone on $\mathbb S_+^d$, but it need not be convex.
 \end{proposition}
 
 \begin{proof}
-If $\gamma$ is root-norm, take $\mathfrak N_\mathcal H=\mathfrak N_\gamma$ on
-each target $\mathcal H$; this family is compatible because its value depends
-only on $T^*T$. Conversely, such a compatible family gives
-$\mathfrak N_\gamma(T)=\mathfrak N(T)$ because
-$\gamma(T^*T)=\mathfrak N((T^*T)^{1/2})^2$ and $(T^*T)^{1/2}$ is obtained from
-$T$ by an isometry on the target in the polar decomposition.
+Necessity follows by choosing the target $\R^d$. Conversely, suppose the
+square-matrix map $\mathfrak N$ is a norm. It is left-orthogonally invariant.
+Every square contraction is a convex combination of orthogonal matrices,
+as follows by writing its singular values as convex combinations of $\pm1$.
+Hence $\mathfrak N(CV)\le\mathfrak N(V)$ for $\|C\|_{\rm op}\le1$.
+If $0\preceq S\preceq T$, then
+$C=S^{1/2}T^{\dagger/2}$ is a contraction and $S^{1/2}=CT^{1/2}$, proving
+$\gamma(S)\le\gamma(T)$.
 
-We now prove monotonicity.  If $0\preceq S\preceq T$, Douglas' factorization
-lemma gives $S^{1/2}=CT^{1/2}$ for some contraction $C$.  Since a contraction
-is in the closed convex hull of isometries, invariance under isometries and the
-triangle inequality give
-$$
-    \mathfrak N(S^{1/2})=\mathfrak N(CT^{1/2})\le \mathfrak N(T^{1/2}).
-$$
-Thus $\gamma(S)\le\gamma(T)$.  The spectral characterization is the usual
-description of unitarily invariant norms by symmetric gauge norms.  The same
-convex-hull argument also shows the contraction property
-$\mathfrak N(BT)\le\mathfrak N(T)$ whenever $B$ is a contraction on the target
-space.
+For operators $T_1,T_2:\R^d\to\mathcal H$, choose a contraction
+$R:\mathcal H\to\R^d$ that is isometric on the range of $T_1+T_2$, whose
+dimension is at most $d$. Then
+\[
+ \mathfrak N_\gamma(T_1+T_2)
+ =\mathfrak N(RT_1+RT_2)
+ \le\mathfrak N(RT_1)+\mathfrak N(RT_2)
+ \le\mathfrak N_\gamma(T_1)+\mathfrak N_\gamma(T_2).
+\]
+The last inequality uses $(RT_i)^*RT_i\preceq T_i^*T_i$ and the monotonicity
+just proved. Positivity and homogeneity follow from the square-matrix norm.
+This proves the norm property for every target. Polar decomposition gives
+the equivalent description by left-invariant norms; the spectral case is
+the usual symmetric-gauge description of unitarily invariant norms.
+Finally, for any target contraction $B$, the inequality
+$T^*B^*BT\preceq T^*T$ proves
+$\mathfrak N_\gamma(BT)\le\mathfrak N_\gamma(T)$.
 \end{proof}
 
 \begin{corollary}[Schatten threshold]
@@ -3006,9 +3082,9 @@ $\cP_2(\R^d)$ and induces the same topology as $\Wtwo$.
 \end{corollary}
 
 \begin{proof}
-Nonnegativity and symmetry are immediate.  Since $\mathfrak N_\gamma$ is a norm
-on finite-dimensional operator spaces, it is equivalent to the Hilbert--Schmidt
-norm, so there are constants $0<c\le C<\infty$ such that
+Nonnegativity and symmetry are immediate. Apply finite-dimensional norm
+equivalence on $\R^{d\times d}$ to the square root $S^{1/2}$. This gives
+constants $0<c\le C<\infty$, independent of the Hilbert target, such that
 $$
     c\,\tr(S)\le \gamma(S)\le C\,\tr(S),
     \qquad S\succeq0.
@@ -3136,22 +3212,24 @@ endpoints such as $p=\infty$.
 
 \begin{corollary}[From $\Wtwo$ Gaussian preservation to spectral Gaussian preservation]
 \label{app-cor:w2-to-spectral-paper}
-Assume that for every Gaussian state $\mu$ the classical Wasserstein gradient
+Fix a class of Gaussian states in the domain of $\MF$ and assume that,
+at each such state, the classical Wasserstein gradient
 $$
 g_\mu(x)=\nabla_x\frac{\delta \MF}{\delta\mu}(x)
 $$
-is affine in $x$. Then the Measure-LMO admits an affine selection at every
-Gaussian state, and the spectral flow using this selection,
+is affine in $x$. Then the Measure-LMO admits an affine selection at each
+state in this class, and the spectral flow using this selection,
 $$
 \partial_t\mu_t+\divv\!\bigl(\mu_t \MJ_\gamma^{\mu_t}(g_{\mu_t})\bigr)=0
 $$
 admits a closed Gaussian ansatz: every solution of the induced mean and
-covariance ODE with locally integrable affine coefficients defines a Gaussian
-solution of the PDE. This does not assert uniqueness among all PDE solutions.
+covariance ODE that stays in this class and has locally integrable affine
+coefficients defines a Gaussian solution of the PDE. This does not assert
+uniqueness among all PDE solutions.
 \end{corollary}
 
 \begin{proof}
-Fix a Gaussian state $\mu$ and write
+Fix a state $\mu$ in this class and write
 $$
 g_\mu(x)=b_\mu+B_\mu x
 $$
@@ -3179,7 +3257,14 @@ law solves the PDE. Existence and uniqueness of this state-dependent moment
 system, particularly at rank changes, are separate questions.
 \end{proof}
 
-Two important examples fit into this mechanism. First, for the relative entropy $\operatorname{Ent}_\nu(\mu)$ with Gaussian target $\nu$, the classical $\Wtwo$ gradient flow is the Fokker--Planck equation, and on the Gaussian class its Wasserstein gradient is affine in $x$. Second, whenever $\MF(\mu)$ depends only on the mean and covariance of $\mu$, its first variation is a quadratic polynomial and its $\Wtwo$ gradient is affine, so the same transfer principle applies. This is in particular the case for training a linear two-layer network, obtained by taking $\sigma=\Id$ in the MLP model above together with a quadratic loss $R(H)$: the resulting objective depends quadratically on the first two moments of $\mu$.
+Two important examples fit into this mechanism. First, relative entropy
+toward a nondegenerate Gaussian target has an affine Wasserstein force at
+every nondegenerate Gaussian state; singular Gaussian states have infinite
+relative entropy and are excluded. Second, if $\MF$ depends smoothly on
+the mean and covariance, its first variation is quadratic and its
+Wasserstein force is affine. This includes the linear two-layer model with
+quadratic risk below, whose loss is a quadratic function of its uncentered
+cross-moment.
 
 
 \subsection{Centered Gaussian Linear Two-Layer Model}
@@ -3238,7 +3323,10 @@ Let $p\in[1,\infty]$, let $\gamma=\gamma_p$ be the Schatten-$p$ norm, and let
 $$
 q=\frac{2p}{2p-1}
 $$
-be the dual exponent of $2p$. Assume that $\mu_t=\mathcal N(0,\Sigma_t)$ is a centered Gaussian solution using the canonical Schatten selector and that $\Sigma_t$ remains positive definite. Then
+be the dual exponent of $2p$, with $q=1$ when $p=\infty$.
+On any interval where a centered Gaussian solution
+$\mu_t=\mathcal N(0,\Sigma_t)$ uses the canonical Schatten selector and
+$\Sigma_t$ is positive definite, one has
 $$
 \dot \Sigma_t=A_t\Sigma_t+\Sigma_tA_t^\top,
 \qquad
@@ -3265,7 +3353,8 @@ Equivalently,
 $$
 \dot \Sigma_t=B_t\Sigma_t^{1/2}+\Sigma_t^{1/2}B_t^\top.
 $$
-When $K_t=0$, set $B_t=0$.
+When $K_t=0$, set $B_t=0$. This inverse-covariance formula is only asserted
+up to the first loss of positive definiteness.
 \end{proposition}
 
 \begin{proof}
@@ -3321,7 +3410,7 @@ so that $r_i$ is the predictor coefficient and $s_i$ measures the corresponding 
 \begin{proposition}[Modal ODE]
 \label{app-prop:modal-ode-paper}
 \label{prop:modal-main}
-Let $p\in[1,\infty]$, let $q=2p/(2p-1)$, and define
+Let $p\in[1,\infty]$, let $q=(2p)'$ (in particular $q=1$ for $p=\infty$), and define
 $\psi_q(a)=a|a|^{q-2}$ for $a\ne0$ and $\psi_q(0)=0$. Under the assumptions
 above, set
 $$
@@ -3394,19 +3483,98 @@ $$
 $$
 with positive-definite interior $s>|r|$, equivalently $a>0$ and $b>0$. In
 Figure~\ref{fig:gaussian-leaves}(a), we display interior trajectories from two
-initial conditions. The next proposition gives the conserved leaves for the
-two endpoint geometries; these level sets organize the displayed trajectories.
+initial conditions. The next proposition gives the interior conserved leaves
+and explains why they need not describe an entire trajectory.
 
-\begin{proposition}[Rank-one endpoint invariants]
+\begin{proposition}[Interior invariants and finite-time rank loss]
 \label{app-prop:rank-one-invariants}
-Along every interval on which $s>|r|$, the trace geometry $p=1$ preserves
-$s^2-r^2$, while the operator geometry $p=\infty$ preserves
-$\sqrt{s+r}+\sqrt{s-r}$.
+For each mode, on every interval where $a_i,b_i>0$, the trace geometry
+$p=1$ preserves $a_i b_i=s_i^2-r_i^2$. For $p>1$, set
+$\eta=1-q/2$; then $a_i^\eta+b_i^\eta$ is constant. In particular,
+$p=\infty$ preserves $\sqrt{s_i+r_i}+\sqrt{s_i-r_i}$.
+From the balanced initialization $a_i=b_i=\alpha_i$, an interior trajectory
+with $p>1$ satisfies
+$$
+ |r_i|<R_{p,i}\coloneqq \alpha_i 2^{p/(p-1)},
+ \qquad R_{\infty,i}=2\alpha_i.
+$$
+If $|\beta_i|>R_{p,i}$, any global nonnegative modal solution must lose
+rank in this mode in finite time.
 \end{proposition}
 
 \begin{proof}
-Write $a=s+r$ and $b=s-r$. The modal equations of Proposition~\ref{app-prop:modal-ode-paper} give $\dot a=-2\Lambda a^{q/2}$ and $\dot b=2\Lambda b^{q/2}$ for a scalar factor $\Lambda$ depending on the current state. For $p=1$, one has $q=2$, hence $\frac{d}{dt}(ab)=\dot a b+a\dot b=0$, and $ab=s^2-r^2$. For $p=\infty$, one has $q=1$, hence $\frac{d}{dt}(\sqrt a+\sqrt b)=\dot a/(2\sqrt a)+\dot b/(2\sqrt b)=0$, which gives the stated invariant.
+Write $\Lambda_i=\mathcal N_t^{2-q}\psi_q(r_i-\beta_i)$.
+The equations $\dot a_i=-2\Lambda_i a_i^{q/2}$ and
+$\dot b_i=2\Lambda_i b_i^{q/2}$ give the invariants by differentiation.
+For $p>1$, the balanced invariant is $a_i^\eta+b_i^\eta=2\alpha_i^\eta$,
+so $a_i,b_i<(2\alpha_i^\eta)^{1/\eta}$ in the interior, giving the
+displayed bound on $r_i=(a_i-b_i)/2$.
+The sign of $\dot r_i$ points toward $\beta_i$. If
+$|\beta_i|>R_{p,i}$, the residual stays bounded away from zero until rank
+loss, and the growing eigenvalue is at least $\alpha_i$.
+Consequently $|\Lambda_i|\ge c>0$. The shrinking eigenvalue $z$ then
+satisfies $\dot z\le-2c z^{q/2}$. Since $q/2<1$, it reaches zero in
+finite time. This argument allows other modes to have already lost rank.
 \end{proof}
+
+After rank loss the preceding invariant need no longer be conserved. To specify
+the subsequent dynamics, we use the modal equations with every extinct
+eigenvalue kept at zero. This is a choice of continuation, not a claim of
+uniqueness for the full measure-valued PDE.
+
+\begin{proposition}[Selected continuation on the covariance boundary]
+\label{app-prop:gaussian-boundary}
+Let $(a_i,b_i)$ be a locally absolutely continuous, nonnegative solution
+of the modal equations, keeping zero eigenvalues at zero. Then its centered
+Gaussian law solves the continuity equation with the canonical Schatten
+selector, including after rank loss, and is a curve of maximal slope for
+the linear-network loss. For almost every time, its energy satisfies
+$$
+ \frac{d}{dt}\MF(\mu_t)=-\mathcal N_t^2,
+ \qquad \MF(\mu_t)=\frac12\sum_i(r_i-\beta_i)^2.
+$$
+This statement is conditional on the specified modal solution; it does not
+assert well-posedness for arbitrary initial measures.
+\end{proposition}
+
+\begin{proof}
+Use the fixed orthonormal symmetric/antisymmetric coordinates in each
+mode and realize the law by independent coordinates
+$\sqrt{a_i(t)}\xi_i^+$ and $\sqrt{b_i(t)}\xi_i^-$, with standard normal
+$\xi_i^\pm$. Before extinction,
+$$
+ \frac{d}{dt}\sqrt{a_i}=-\Lambda_i a_i^{(q-1)/2},
+ \qquad
+ \frac{d}{dt}\sqrt{b_i}=\Lambda_i b_i^{(q-1)/2}.
+$$
+These derivatives are locally bounded, since $q\ge1$ and the modal
+solution is locally bounded; after extinction they are zero. Thus this
+realization is locally absolutely continuous in $L^2$ and its derivative
+is precisely the canonical Schatten velocity on the support. Its action
+satisfies $\MN_{\mu_t}(v_t)^2=\mathcal N_t^2$ by
+\eqref{eq:lmo-dissipation-identities}. This proves the continuity equation
+with locally finite action, even if its affine coefficient is not integrable
+through extinction; no inverse of $\Sigma_t$ is needed.
+Differentiating the loss gives $\MF'=-\mathcal N_t^2$ by the modal ODE.
+The transport--Taylor estimate of
+Theorem~\ref{prop:formalGF} holds for this quadratic
+moment functional, including at singular Gaussian measures: for each coupling
+$\pi\in\Pi(\mu_t,\nu)$ with small squared displacement, expanding the
+moments gives a remainder $O(\int|y-x|^2\,d\pi)$ at a fixed state.
+This is the displacement cost of the chosen coupling, not necessarily the
+optimal $\Wtwo(\mu_t,\nu)^2$.
+Its slope is therefore $\mathcal N_t$, by the slope argument in that
+theorem, which does not require regularity of the selected velocity.
+The dynamic formula gives $|\mu'|_{\Wg}\le\mathcal N_t$; the slope
+inequality and the energy identity give the reverse bound almost everywhere.
+Integrating yields the metric energy-dissipation identity across rank changes.
+\end{proof}
+
+For the first mode in Figure~\ref{fig:gaussian-leaves}(d), $\alpha_1=0.1$,
+so $R_{2,1}=0.4$, $R_{4,1}\simeq0.252$, and $R_{\infty,1}=0.2$.
+All four plotted targets exceed the latter two bounds in absolute value,
+and three exceed the first. These trajectories therefore require the
+boundary continuation, not just the positive-definite covariance formula.
 
 Figure~\ref{fig:gaussian-leaves} illustrates these rank-one and rank-two reductions.
 
@@ -3431,7 +3599,7 @@ Figure~\ref{fig:gaussian-leaves} illustrates these rank-one and rank-two reducti
  (d) 2-mode \\[-2mm]
 \end{tabular}
 }
-\caption{Closed-form Gaussian geometry. Panel (a): one-mode trajectories in $(r,s)$, for $p\in\{1,2,4,\infty\}$. Panels (b)--(c): interior conserved foliations for the two endpoint geometries. Panel (d): two-mode rank-two dynamics in the $(r_1,r_2)$ plane; all trajectories start from the balanced diagonal state $r_1=r_2=0$, $(s_1,s_2)=(0.1,10)$, and each group targets a different $(\beta_1,\beta_2)$.}
+\caption{Closed-form Gaussian geometry. Panel (a): one-mode trajectories in $(r,s)$, for $p\in\{1,2,4,\infty\}$. Panels (b)--(c): interior conserved foliations for the two endpoint geometries. Panel (d): two-mode rank-two dynamics in the $(r_1,r_2)$ plane; all trajectories start from $r_1=r_2=0$, $(s_1,s_2)=(0.1,10)$, and each group targets a different $(\beta_1,\beta_2)$. After rank loss, trajectories use the zero-eigenvalue continuation of Proposition~\ref{app-prop:gaussian-boundary}; the interior invariants no longer apply.}
 \label{fig:gaussian-leaves}
 \end{figure}
 
@@ -3519,10 +3687,18 @@ Proposition~\ref{app-prop:modal-ode-paper}, integrated in double precision by
 RK4 with $T=18$ and $\Delta t=2\times10^{-4}$. Negative numerical covariance
 eigenvalues are projected to zero; extinct modes are not artificially revived.
 The validator \texttt{python/gaussians/validate\_gaussians.py} checks the
-implemented vector field against the analytical formulas and tests conserved
-leaves on interior trajectory segments. This is not a proof of accuracy
-through a rank change. Their path and interior-invariant interpretation is
-separate from the empirical neural-network clocks.
+vector field and interior conserved leaves. The independent validator
+\texttt{python/gaussians/validate\_rank\_events.py} resolves rank-loss and
+zero-error events using transformed variances, with the continuation of
+Proposition~\ref{app-prop:gaussian-boundary}. Across the 24 parameter cases,
+it detects 11 rank-loss events. Reference refinement changes their times by
+at most $4.9\times10^{-8}$. In local windows around all detected events,
+refining the notebook step from $2\times10^{-4}$ to $5\times10^{-5}$ reduces
+the maximum tested covariance-eigenvalue error from $3.5\times10^{-4}$ to
+$8.6\times10^{-5}$. These are local consistency checks, not a certified
+global error bound; in particular, classical fourth-order accuracy is not
+assumed at nonsmooth events. This path interpretation is separate from the
+empirical neural-network clocks.
 
 \subsection{Couplings and Interpolations}
 This subsection complements Figures~\ref{fig:static-pair} and
@@ -3909,44 +4085,21 @@ Then $\operatorname{Ent}_\nu$ is $\kappa$-geodesically convex on $(\cP_2(\R^d),\
 \end{theorem}
 
 \begin{proof}
-Let $(\mu_t)$ be any constant-speed $\Wg$-geodesic and choose a minimal
-velocity representation. Its action equals $\Wg(\mu_0,\mu_1)^2$. By the
-superposition principle, it is represented by a path measure $\eta$; let
-$\pi_*=(e_0,e_1)_\#\eta$. The dynamic-to-static inequalities in the proof of
-Theorem~\ref{thm:staticdynamic} give
+Let $(\mu_t)$ be any constant-speed $\Wg$-geodesic and set
+$D=\Wg(\mu_0,\mu_1)$. Choose a dual maximizer $Q_*$ for its endpoints.
+Then $Q_*\succ0$ and $\WQ{Q_*}(\mu_0,\mu_1)=D$. For $0\le s\le t\le1$,
+the triangle inequality for $\WQ{Q_*}$ and the bound $\WQ{Q_*}\le\Wg$ give
 \[
- \Wg(\mu_0,\mu_1)^2
- \le \gamma\!\left(\int(\omega_1-\omega_0)
-                         (\omega_1-\omega_0)^\top\,d\eta\right)
- \le \int_0^1\MN_{\mu_t}(v_t)^2\,dt
- =\Wg(\mu_0,\mu_1)^2.
+\begin{aligned}
+ D&\le \WQ{Q_*}(\mu_0,\mu_s)+\WQ{Q_*}(\mu_s,\mu_t)
+       +\WQ{Q_*}(\mu_t,\mu_1)\\
+  &\le sD+(t-s)D+(1-t)D=D.
+\end{aligned}
 \]
-Thus $\pi_*$ is a static optimal coupling. Choose a dual maximizer $Q_*$ in
-Theorem~\ref{thm:minmax}. The pair $(\pi_*,Q_*)$ is a saddle point, and
-$Q_*\succ0$ because $\cK\subset\Sppd$. Equality throughout the quadratic
-Jensen estimate for $Q_*$ implies
-$\dot\omega_t=\omega_1-\omega_0$ for $\eta$-a.e. path. Consequently,
-\[
- \mu_t=((1-t)x+ty)_\#\pi_*,
- \qquad
- \WQ{Q_*}(\mu_0,\mu_1)^2=\Wg(\mu_0,\mu_1)^2.
-\]
-In particular, uniform ellipticity rules out the branching phenomenon of the
-preceding remark.
-
-Since $Q_*$ is positive definite, let $L=Q_*^{1/2}$ and define
-$$
-\widetilde\mu_i=L_\#\mu_i,
-\qquad
-\widetilde\nu=L_\#\nu,
-\qquad
-\widetilde\pi_*=(L,L)_\#\pi_*.
-$$
-Then $\widetilde\pi_*$ is optimal for the Euclidean quadratic cost between $\widetilde\mu_0$ and $\widetilde\mu_1$, hence
-$$
-\widetilde\mu_t=((1-t)z_0+t z_1)_\#\widetilde\pi_*
-$$
-is a $\Wtwo$-geodesic and
+Equality throughout implies $\WQ{Q_*}(\mu_s,\mu_t)=(t-s)D$.
+Thus the given curve is also a constant-speed $\WQ{Q_*}$-geodesic.
+With $L=Q_*^{1/2}$, set $\widetilde\mu_t=L_\sharp\mu_t$ and
+$\widetilde\nu=L_\sharp\nu$. The transformed curve is a $\Wtwo$-geodesic and
 $$
 \Wtwo(\widetilde\mu_0,\widetilde\mu_1)^2=\Wg(\mu_0,\mu_1)^2.
 $$
@@ -4171,6 +4324,64 @@ The full theorem applies to the trace case $p=1$, where one may choose $\cK=\{\I
 
 %%%
 
+\paragraph{Metric slope of relative entropy.}
+Theorem~\ref{prop:formalGF} does not directly apply to entropy: atomic
+measures have infinite entropy and are dense in $\cP_2$, so its
+finite-neighborhood hypothesis fails. The following one-sided argument
+provides the slope identity needed for Gaussian states and smooth local
+perturbations, also for root-norm gauges.
+
+\begin{proposition}[Entropy slope at a regular relative density]
+\label{prop:entropy-slope}
+Let $\gamma$ be a root-norm gauge and let $\alpha,\beta\in\cP_2(\R^d)$ have
+strictly positive $C^1$ densities. Assume that
+$\ell=\log(d\alpha/d\beta)\in C^2$ has bounded Hessian. Then
+\[
+ |\partial\KL(\cdot\mid\beta)|_\gamma(\alpha)
+ =\MN_\alpha^*(\nabla\ell).
+\]
+\end{proposition}
+
+\begin{proof}
+The Hessian bound implies quadratic growth of $\ell$ and linear growth of
+$g=\nabla\ell$, so the entropy is finite and $g\in L^2(\alpha)$.
+The supporting inequality for relative entropy gives
+\[
+ \KL(\nu\mid\beta)-\KL(\alpha\mid\beta)
+ \ge\int\ell\,d(\nu-\alpha).
+\]
+It follows either by convexity or from the nonnegativity of
+$\KL(\nu\mid\alpha)$; it is trivial when the left side is infinite.
+For any coupling $\pi$ of $\alpha,\nu$, Taylor's lower bound therefore gives
+\[
+ \KL(\nu\mid\beta)-\KL(\alpha\mid\beta)
+ \ge\int g(x)\cdot(y-x)\,d\pi
+       -\frac M2\int|y-x|^2\,d\pi,
+ \qquad M=\sup_x\|D^2\ell(x)\|_{\rm op}.
+\]
+Choose $c_\gamma>0$ with $c_\gamma\tr(S)\le\gamma(S)$, as provided by
+Corollary~\ref{cor:root-norm-metric}. Apply the inequality to an optimal
+spectral coupling. Conditional Jensen and monotonicity of a root-norm gauge give
+\[
+ \KL(\alpha\mid\beta)-\KL(\nu\mid\beta)
+ \le\MN_\alpha^*(g)\Wg(\alpha,\nu)
+       +\frac{M}{2c_\gamma}\Wg(\alpha,\nu)^2.
+\]
+This proves the slope upper bound.
+
+For $w\in C_c^\infty(\R^d;\R^d)$, the map $\Id+hw$ is a diffeomorphism
+for small $|h|$. Change of variables in the entropy and integration by parts
+on the compact support give
+\[
+ \left.\frac{d}{dh}\KL((\Id+hw)_\sharp\alpha\mid\beta)\right|_{h=0}
+ =-\int(\divv w+\nabla\log\beta\cdot w)\,d\alpha
+ =\int g\cdot w\,d\alpha,
+\]
+where $\beta$ inside the logarithm denotes its density. Together with
+$\Wg(\alpha,(\Id+hw)_\sharp\alpha)\le |h|\MN_\alpha(w)$, this proves the
+opposite slope bound by duality and density of $C_c^\infty$ in $L^2(\alpha)$.
+\end{proof}
+
 \subsection{Relative-entropy flows over Gaussians}
 \label{sec:relative-entropy-gaussians}
 
@@ -4179,10 +4390,11 @@ $\operatorname{Ent}_\nu(\mu) = \KL(\mu\,|\,\nu)$ is the Langevin/Fokker--Planck 
 single-particle realization is the overdamped Langevin diffusion. This makes
 it a basic tool for sampling. We now describe what happens for the spectral
 Schatten geometries. For $p>1$, the resulting evolution is still explicit on
-Gaussian measures, but the PDE is nonlocal: its velocity depends on global
-statistics of the current law, and therefore cannot be represented by an
-autonomous single-particle SDE with coefficients depending only on the
-particle position.
+Gaussian measures, but the PDE is generally nonlocal: its velocity depends
+on global statistics of the current law. In general, a stochastic
+representation would therefore need law-dependent coefficients, rather than
+a fixed autonomous single-particle diffusion. In dimension one all these
+geometries reduce to $\Wtwo$.
 
 \begin{proposition}[Gaussian KL flow for Schatten geometries]
 \label{prop:gaussian-kl-schatten-flow}
@@ -4193,6 +4405,9 @@ $\mu_0=\mathcal N(m_0,\Sigma_0)$ with $\Sigma_0\succ0$, any locally absolutely
 continuous solution $(m_t,\Sigma_t)$ of the equations below, with these initial
 data and $\Sigma_t\succ0$, defines a Gaussian solution
 $\mu_t=\mathcal N(m_t,\Sigma_t)$ of the normalized continuity equation.
+On every compact time interval on which $\Sigma_t\succ0$, this solution is
+also a curve of maximal slope for $\KL(\cdot\mid\nu)$ in the ambient
+$\Wg$ metric.
 Conversely, every sufficiently regular Gaussian solution with this selector
 satisfies these equations. This is a conditional reduction, not an assertion
 of existence or uniqueness through changes in the rank of the force covariance.
@@ -4355,6 +4570,22 @@ $\dot\Sigma_t=2I-\bar\Sigma^{-1}\Sigma_t-\Sigma_t\bar\Sigma^{-1}$, which is
 the Gaussian restriction of the classical Langevin/Fokker--Planck flow. For
 $p=\infty$, $q=1$, giving
 $P_{\infty,t}=\tr(F_t^{1/2})F_t^{\dagger/2}$.
+
+To verify the metric interpretation, work on a compact time interval with
+$\Sigma_t\succ0$. The moments and $\Sigma_t^{-1}$ are bounded there, so the
+force norm and the selected velocity norm are bounded. For an affine field
+$v_t(x)=A_t(x-m_t)+a_t$, its $L^2(\mu_t)$ norm controls $A_t,a_t$ on such an
+interval. Thus the affine coefficients are locally integrable, even if they
+jump at a force-rank change, and the Gaussian continuity equation is valid.
+The Gaussian entropy is a smooth function of $(m,\Sigma)$; its derivative is
+$\int g_t\cdot v_t\,d\mu_t=-\MN_{\mu_t}^*(g_t)^2$ almost everywhere.
+Proposition~\ref{prop:entropy-slope} identifies the ambient slope because
+the log density ratio is quadratic. BB bounds the metric speed by
+$\MN_{\mu_t}(v_t)=\MN_{\mu_t}^*(g_t)$. The chain rule and slope inequality
+give the reverse speed bound, exactly as in the proof of
+Theorem~\ref{prop:formalGF}. The energy is absolutely continuous, hence the
+integrated energy identity follows. No existence or uniqueness claim for
+the moment ODE is needed for this verification.
 \end{proof}
 
 
@@ -4520,19 +4751,21 @@ The comparison above gives a simple way to transfer a $\Wtwo$--P-L estimate,
 but it does not identify the sharp $\Wg$--P-L constant in general.  Deciding
 whether a geometry such as Muon yields a strictly better global constant is
 difficult because its nonlinear slope must be controlled over the entire
-energy landscape.  We therefore study the linearization at a minimizer.  This
-amounts formally to measuring the spectral gap of the Hessian in the spectral
-tangent norm.  For concreteness, consider the relative entropy
+energy landscape. We therefore study a small-amplitude expansion at a
+minimizer, measuring a variational local dissipation gap in the spectral
+geometry. The leading evolution need not be linear: a spectral duality map
+is generally nonlinear even though it is one-homogeneous.
+For concreteness, consider the relative entropy
 \[
     \MF(\alpha)=\KL(\alpha\,|\,\beta).
 \]
 Its $\Wtwo$ gradient flow is the Fokker--Planck, or drift--diffusion, process
-with invariant law $\beta$.  Its local spectral gap in the $\Wg$ geometry is a
+with invariant law $\beta$. Its variational local gap in the $\Wg$ geometry is a
 $\gamma$-Poincar\'e constant, generalizing the classical Poincar\'e constant of
 $\beta$.
 
-Let $u\in H^1(\beta)$ be a bounded smooth perturbation with
-$\int u\,d\beta=0$ and set
+Let $u=\varphi-\int\varphi\,d\beta$ with
+$\varphi\in C_c^\infty(\R^d)$ and set
 $\alpha_\varepsilon=(1+\varepsilon u)\beta$ for sufficiently small
 $|\varepsilon|$.  Then
 \[
@@ -4546,26 +4779,50 @@ $|\varepsilon|$.  Then
     \frac{\varepsilon\nabla u}{1+\varepsilon u}
     =\varepsilon\nabla u+O_{L^2(\beta)}(\varepsilon^2).
 \]
-At the level of the dual tangent norm, these expansions give
+Proposition~\ref{prop:entropy-slope} applies because
+$\log(1+\varepsilon u)$ has bounded Hessian. These expansions therefore give
 \[
-    \MN_{\alpha_\varepsilon}^*\!\left(
+    |\partial\MF|_\gamma(\alpha_\varepsilon)^2
+    =\MN_{\alpha_\varepsilon}^*\!\left(
       \nabla\log\frac{d\alpha_\varepsilon}{d\beta}\right)^2
     =
     \varepsilon^2\mathcal E_\gamma^\beta(u)+o(\varepsilon^2),
 \]
-where the spectral Dirichlet form is
+where the spectral Dirichlet energy is
 \[
     \mathcal E_\gamma^\beta(u)
     \coloneqq
     \sup_{\MN_\beta(v)\le1}
     \left(\int \nabla u\cdot v\,d\beta\right)^2 .
 \]
-Whenever the entropy slope is identified with this dual norm, the
-linearization of a $\kappa$--P-L inequality is exactly
-$\kappa\operatorname{Var}_\beta(u)\le\mathcal E_\gamma^\beta(u)$.
-The spectral Dirichlet form and the inequalities below are defined
-independently of an existence or slope-identification theorem for the
-nonlinear entropy flow.
+Indeed, the pairing is exactly
+$\int\nabla\log(d\alpha_\varepsilon/d\beta)\cdot v\,d\alpha_\varepsilon
+=\varepsilon\int\nabla u\cdot v\,d\beta$.
+Writing $\delta=|\varepsilon|\|u\|_\infty<1$, monotonicity and homogeneity give
+$(1-\delta)\MN_\beta(v)^2\le\MN_{\alpha_\varepsilon}(v)^2
+\le(1+\delta)\MN_\beta(v)^2$. Duality then bounds the squared slope between
+$\varepsilon^2\mathcal E_\gamma^\beta(u)/(1+\delta)$ and
+$\varepsilon^2\mathcal E_\gamma^\beta(u)/(1-\delta)$, justifying the expansion
+despite the changing reference measure.
+Thus a $\kappa$--P-L inequality implies
+$\kappa\operatorname{Var}_\beta(u)\le\mathcal E_\gamma^\beta(u)$, first for
+these tests and then on $H^1(\beta)$ by density and norm comparison.
+The converse is not a global P-L theorem, nor a uniform local P-L statement
+without specifying a neighborhood and uniform remainder bounds.
+The energy $\mathcal E_\gamma^\beta$ is convex and two-homogeneous but is
+generally not quadratic. We therefore use ``Dirichlet energy'' rather than
+a bilinear Dirichlet form. For the canonical Schatten selection ($p\ge1$),
+the formal leading perturbation equation is
+\[
+ \partial_tu=-\beta^{-1}\divv\!\left(
+       \beta\MJ_\gamma^\beta(\nabla u)\right),
+ \qquad
+ \frac12\frac{d}{dt}\int u^2\,d\beta=-\mathcal E_\gamma^\beta(u),
+\]
+where $\beta$ in the PDE denotes its density and the identity holds for
+sufficiently regular solutions. This explains the dissipation meaning of
+the local constant without asserting a linear generator or existence of
+the nonlinear entropy flow.
 
 \begin{definition}[$\gamma$-Poincar\'e constant]
 The $\gamma$-Poincar\'e constant of $\beta$ is
@@ -4689,9 +4946,11 @@ $Q^{-1}\succeq I$ and therefore
     \lambda_{\mathrm P}^{1}(\beta)
     \qquad (p\ge1).
 \]
-Thus the local Poincar\'e rate of the spectrally normalized drift--diffusion
-flow is no smaller than the classical $\Wtwo$ rate for all Schatten geometries
-from the trace case to the Muon endpoint.
+Thus the variational local dissipation constant is no smaller than the
+classical $\Wtwo$ constant for all Schatten geometries from the trace case
+to the Muon endpoint. Along solutions for which the preceding perturbation
+identity is justified, it controls exponential decay of the perturbation's
+squared $L^2(\beta)$ norm.
 
 The same local computation also gives a simple way to compare examples across
 the full root-norm Schatten range $p\ge1/2$ discussed in
@@ -4701,7 +4960,7 @@ Appendix~\ref{app:root-norm-gauges}.  For a smooth test function $u$, set
 \]
 For $\gamma_p(S)=\norm{S}_{S_p}$, $p\ge1/2$, the tangent norm is the
 Schatten $S_{2p}$ norm of the operator
-$T_v:a\mapsto a\cdot v$.  By Schatten duality, the spectral Dirichlet form is
+$T_v:a\mapsto a\cdot v$. By Schatten duality, the spectral Dirichlet energy is
 \[
     \mathcal E_p^\beta(u)
     =
@@ -4827,7 +5086,13 @@ potential
     \frac{r^2}{4}|x|^{2r-2}
     -\frac{r(r+d-2)}{2}|x|^{r-2},
 \]
-which tends to $+\infty$ as $|x|\to\infty$.  Thus the classical
+which tends to $+\infty$ as $|x|\to\infty$. The transform is understood at
+the level of the closed quadratic form. For $1<r<2$, its negative singularity
+at zero is a multiple of $|x|^{-(2-r)}$, which belongs locally to $L^a$ for
+some $a>d/2$ and $a>1$. Sobolev estimates make this term infinitesimally
+form-bounded relative to the Laplacian. For $r\ge2$ the potential is locally
+bounded. In both cases, the confining part controls tails and local Rellich
+compactness gives compact embedding of the form domain. Thus the classical
 Poincar\'e problem has compact resolvent and its spectral gap is attained.
 
 We first prove that no first eigenfunction has rank-one gradient covariance.
@@ -4838,7 +5103,9 @@ $-L_r u=\lambda u$ becomes
 \[
     -\psi''(t)+r |x|^{r-2}t\psi'(t)=\lambda\psi(t).
 \]
-Since $u$ is nonconstant, one can choose $t\ne0$ with $\psi'(t)\ne0$.  Setting
+Elliptic regularity away from the origin justifies this identity pointwise
+for $t\ne0$. Since $u$ is nonconstant, one can choose such a $t$ with
+$\psi'(t)\ne0$. Setting
 $x=ta+z$ and varying $z\perp a$ forces $|ta+z|^{r-2}$ to be independent of
 $|z|$, which is possible only for $r=2$.  This contradiction proves the
 claim.
@@ -4893,13 +5160,22 @@ covariance is scalar, so all the Schatten Poincar\'e constants coincide.
 
 \section{Positively \texorpdfstring{$2$}{2}-Homogeneous Case and a Generalized Unbalanced Geometry}
 \label{app:homogeneous}
-This section continues the two-layer mean-field discussion of Section~\ref{sec:mlp-meanfield} in the positively two-homogeneous case. The point is that such models reduce the ambient transport problem to an unbalanced transport problem on the sphere, and this section explains how the spherical dynamics inherits a spectral action from the ambient flow.
+This section continues the two-layer mean-field discussion of
+Section~\ref{sec:mlp-meanfield} in the positively two-homogeneous case.
+The energy factors through a weighted spherical projection, and the action
+of a homogeneous velocity has a spherical continuity--reaction form. These
+are energy and action identities, not an isometry between fixed ambient
+lifts and spherical measures.
 Let
 $$
 \MF(\mu)=R\!\left(\int_{\R^d}\Phi(x)\,d\mu(x)\right),
 \qquad
 \Phi(\lambda x)=\lambda^2\Phi(x).
 $$
+Here $\Phi:\R^d\to\R^k$ is continuous and $R$ is defined on the relevant
+moment vectors. The energy identity below also applies to nonsmooth features.
+For the subsequent force construction we assume $\Phi\in C^1$ and $R\in C^1$;
+applying it to ReLU requires a separate justification at its kinks.
 Writing $x=r\omega$ with $\omega\in\Sd$, define the weighted spherical projection
 $$
 \int_{\Sd}\psi(\omega)\,d\Pi_2(\mu)(\omega)
@@ -4908,7 +5184,7 @@ $$
 $$
 The integrand on the right is defined to be zero at $x=0$.
 The first point is that two-homogeneous models only depend on this weighted spherical projection.
-\begin{proposition}[Exact quotient]
+\begin{proposition}[Energy factorization]
 \label{prop:quotient}
 There exists a functional $\overline f$ on $\cM_+(\Sd)$ such that
 $$
@@ -4942,10 +5218,29 @@ so that $\tau(\omega)\cdot \omega=0$, and then $1$-homogeneity gives
 $$
 v(r\omega)=r\,v(\omega)=r\bigl(b(\omega)\omega+\tau(\omega)\bigr).
 $$
-The decomposition is unique because it is simply the orthogonal splitting of $v(\omega)$ into its normal and tangential parts on the sphere. In the positively two-homogeneous setting considered here, the first variation is $2$-homogeneous and its spatial gradient is therefore $1$-homogeneous; correspondingly, the natural steepest-descent velocity fields for the flow belong to this $1$-homogeneous class. The next proposition computes the projected spherical PDE.
+The splitting is orthogonal and unique. In the smooth two-homogeneous model,
+the first variation is two-homogeneous, so its force is one-homogeneous.
+Choose the projected Measure-LMO of
+Proposition~\ref{prop:measure-lmo-reduction}, using a fixed measurable matrix
+selection $A_g=A(S_g)$, and set the velocity to zero at the origin.
+This selected velocity is one-homogeneous because it is a spatially constant
+matrix times the force. The canonical Schatten selector is one such choice.
+Other minimizing velocities need not be homogeneous when the oracle is
+nonunique, so this selection requirement cannot be omitted.
+
+The coefficients close on $\nu=\Pi_2(\mu)$: the force depends on $\mu$ only
+through $\int\Phi\,d\nu$, and homogeneity gives
+\[
+ S_g=\int_{\Sd}g_\mu(\omega)g_\mu(\omega)^\top\,d\nu(\omega).
+\]
+Consequently the fixed selection, and hence $b$ and $\tau$, depend only on
+$\nu$, not on its radial lift.
 \begin{proposition}[Projected continuity-reaction equation]
 \label{prop:sphere}
-If $\mu_t$ solves the Spectral Wasserstein flow and $\nu_t=\Pi_2(\mu_t)$, then
+Let $(\mu_t,v_t)$ solve the continuity equation on a finite interval, with
+$\mu_t$ continuous in $\Wtwo$, $\int_0^T\int|v_t|^2d\mu_tdt<\infty$, and
+$v_t$ a one-homogeneous Borel field with $v_t(0)=0$. If
+$\nu_t=\Pi_2(\mu_t)$, then
 $$
 \partial_t\nu_t+\divS(\nu_t\tau_t)=2b_t\nu_t.
 $$
@@ -4973,9 +5268,15 @@ $\Pi_2$ therefore give
    \bigl(2b_t\psi+\nablaS\psi\cdot\tau_t\bigr)\,d\nu_t,
 \]
 which is precisely the weak form of the stated continuity--reaction equation.
+The test function is $C^1$ at the origin with zero gradient. Spatial cutoffs
+justify its quadratic growth: the error is controlled by
+$\int_0^T\int |x||v_t(x)|\,d\mu_tdt<\infty$, using the uniform second-moment
+bound and finite kinetic action. The $\Wtwo$ continuity also implies narrow
+continuity of $\nu_t$, by uniform integrability of the weighted projection.
 \end{proof}
 
-Motivated by Proposition~\ref{prop:sphere}, define for nonnegative measures $\nu_0,\nu_1$ on $\Sd$
+Motivated by Proposition~\ref{prop:sphere}, define for finite nonnegative
+measures $\nu_0,\nu_1$ on $\Sd$
 $$
 \UWg(\nu_0,\nu_1)^2
 \coloneqq 
@@ -4985,7 +5286,10 @@ $$
 \int_{\Sd} (b_t(\omega)\omega+\tau_t(\omega))(b_t(\omega)\omega+\tau_t(\omega))^\top\,d\nu_t(\omega)
 \right)\,dt,
 $$
-under the continuity-reaction constraint
+over narrowly continuous finite-measure curves with the prescribed endpoints
+and Borel fields $b_t,\tau_t$, with $\tau_t(\omega)\perp\omega$ almost
+everywhere and $\int_0^1\int(b_t^2+|\tau_t|^2)d\nu_tdt<\infty$, under the
+distributional continuity--reaction constraint
 $$
 \partial_t\nu_t+\divS(\nu_t\tau_t)=2b_t\nu_t.
 $$
@@ -4993,7 +5297,13 @@ $$
 The next proposition identifies the ambient homogeneous action with this spherical unbalanced action.
 \begin{proposition}[Ambient action equals spherical action]
 \label{prop:unbalanced}
-For positively two-homogeneous models and $1$-homogeneous velocities, the ambient Spectral Wasserstein action equals the spherical action defining $\UWg$.
+For each ambient curve and homogeneous velocity satisfying
+Proposition~\ref{prop:sphere} on $[0,T]$, $T>0$, its ambient action equals the
+action of its spherical projection on the same interval. In particular,
+\[
+ \UWg(\nu_0,\nu_T)^2
+ \le T\int_0^T\gamma\!\left(\int v_t v_t^\top\,d\mu_t\right)dt.
+\]
 \end{proposition}
 
 \begin{proof}
@@ -5003,8 +5313,18 @@ $$
 =
 \int_{\Sd}(b(\omega)\omega+\tau(\omega))(b(\omega)\omega+\tau(\omega))^\top\,d\Pi_2(\mu)(\omega).
 $$
-Inserting this identity into the Benamou--Brenier action yields the claim.
+Integrating yields equality of the two actions. Rescaling $[0,T]$ to
+$[0,1]$ multiplies velocities by $T$, hence multiplies the total action by
+$T$; the definition of $\UWg$ then gives the inequality.
 \end{proof}
+
+This identity does not equate the distances of fixed lifts. For example,
+$\mu_0=\delta_{e_1}$ and
+$\mu_1=\tfrac12\delta_0+\tfrac12\delta_{\sqrt2e_1}$ both project to
+$\delta_{e_1}$, while
+$\Wg(\mu_0,\mu_1)^2=(2-\sqrt2)\gamma(e_1e_1^\top)>0$.
+A metric-quotient theorem would require an additional minimization over
+lifts and a converse lifting result, neither of which is asserted here.
 
 The following remark explains how the trace-norm case collapses to the classical Wasserstein--Fisher--Rao geometry.
 \begin{remark}
@@ -5016,8 +5336,15 @@ Since the reaction rate is $\alpha_t=2b_t$, the reaction term is
 $\alpha_t^2/4$. Thus the trace case is the Wasserstein--Fisher--Rao action
 with this transport/reaction normalization, whose static formulations are
 developed in \citet{ChizatPeyreSchmitzerVialard2018,LieroMielkeSavare2018}.
-For general $\gamma$, the construction gives a generalized unbalanced
-transport geometry on the sphere. Whether it admits an analogous static
+Writing $\mathsf{WFR}$ for this normalization, trace comparison gives
+\[
+ \sqrt{c_\gamma}\,\mathsf{WFR}\le\UWg
+ \le\sqrt{C_\gamma}\,\mathsf{WFR}.
+\]
+Thus $\UWg$ is finite and separates measures. Symmetry follows by reversing
+time, and concatenating curves with durations proportional to the square
+roots of their actions proves the triangle inequality. Hence it is a metric
+on finite spherical measures. Whether it admits an analogous static
 formulation is an interesting open direction.
 \end{remark}
 

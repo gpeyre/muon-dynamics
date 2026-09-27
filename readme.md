@@ -26,18 +26,63 @@ Intermediate Schatten norms, such as the Frobenius case $p=2$, interpolate betwe
 
 This repository contains:
 
+- an installable computational toolbox in [`src/muon_dynamics/`](./src/muon_dynamics/), with NumPy and optional PyTorch APIs;
+- four short [teaching notebooks](#small-examples) for spectral directions, particle flows, transport, and Gaussian closures;
 - the paper source in `neurips/` and the generated figures used by the manuscript;
-- reproducible notebooks for static spectral transport couplings and MMD gradient flows;
-- additional notebooks for Gaussian reductions, two-layer ReLU training, and shallow attention;
-- helper scripts that regenerate the notebooks from plain Python sources.
+- six [experiment notebooks](#paper-experiments), an isolated figure-reproduction runner, and numerical tests.
+
+## Quick Start
+
+From a clone of this repository, with Python 3.10 or later:
+
+```bash
+python -m pip install -e '.[notebooks,transport]'
+python -m unittest discover -s tests -v
+python scripts/reproduce.py --examples --output outputs/examples
+```
+
+For just the NumPy/SciPy toolbox, use `pip install -e .`. For all paper
+experiments, including PyTorch training, use `pip install -r requirements.txt`.
+
+```python
+import numpy as np
+from muon_dynamics import mmd_force, particle_lmo
+
+rng = np.random.default_rng(7)
+x = rng.normal(size=(32, 2))
+target = rng.normal(size=(48, 2)) + [2., 0.]
+velocity = particle_lmo(mmd_force(x, target), p=np.inf)
+x = x + 0.01 * velocity
+```
+
+See the [toolbox API and normalization conventions](./docs/toolbox.md) and
+[reproduction guide](./docs/reproducibility.md). The LMO includes the negative
+sign and dual-norm scale; it is not the unscaled polar update used in practical
+Muon optimizers.
 
 The figure below illustrates MMD gradient flows under different spectral geometries. They optimize the same objective, but move the particle cloud through different collective directions.
 
 ![Three Schatten flows](./assets/mmd_trajectories_three.png)
 
-## Notebooks
+## Small Examples
 
-All notebooks are in [`python/`](./python/README.md). Each one can be opened directly on GitHub or launched in Colab.
+Short, seeded notebooks that call the toolbox directly, without full neural-network training:
+
+| Preview | Notebook | Open |
+| --- | --- | --- |
+| ![Spectral singular-value responses](./assets/example_spectral.png) | [Spectral directions](./python/examples/01_spectral_directions.ipynb): LMOs, weights, and endpoints | [![Open on GitHub](https://img.shields.io/badge/Open_on-GitHub-24292f?logo=github)](https://github.com/gpeyre/muon-dynamics/blob/main/python/examples/01_spectral_directions.ipynb) |
+| ![Small particle MMD flow](./assets/example_mmd.png) | [Particle MMD](./python/examples/02_particle_mmd.ipynb): a small flow under three geometries | [![Open on GitHub](https://img.shields.io/badge/Open_on-GitHub-24292f?logo=github)](https://github.com/gpeyre/muon-dynamics/blob/main/python/examples/02_particle_mmd.ipynb) |
+| ![Full transport plans](./assets/example_transport.png) | [Static transport](./python/examples/03_static_transport.ipynb): why optimal plans can split mass | [![Open on GitHub](https://img.shields.io/badge/Open_on-GitHub-24292f?logo=github)](https://github.com/gpeyre/muon-dynamics/blob/main/python/examples/03_static_transport.ipynb) |
+| ![Gaussian covariance and energy curves](./assets/example_gaussian.png) | [Gaussian KL](./python/examples/04_gaussian_kl.ipynb): covariance dynamics and energy decay | [![Open on GitHub](https://img.shields.io/badge/Open_on-GitHub-24292f?logo=github)](https://github.com/gpeyre/muon-dynamics/blob/main/python/examples/04_gaussian_kl.ipynb) |
+
+## Paper Experiments
+
+All experiment notebooks are in [`python/`](./python/README.md). Each one can be
+opened on GitHub. For Colab, clone the repository and install its experiment
+dependencies before running from the notebook's directory; the static example
+also needs the images in `python/data/`. The isolated runner below handles
+these paths locally. The three-geometry README previews are illustrative;
+the linked paper notebooks use their documented experimental settings.
 
 ### Static Spectral Couplings
 
@@ -46,7 +91,7 @@ All notebooks are in [`python/`](./python/README.md). Each one can be opened dir
 [![Open on GitHub](https://img.shields.io/badge/Open_on-GitHub-24292f?logo=github)](https://github.com/gpeyre/muon-dynamics/blob/main/python/static/static_couplings.ipynb)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/gpeyre/muon-dynamics/blob/main/python/static/static_couplings.ipynb)
 
-Static transport couplings between planar point clouds for the trace geometry and the operator-norm geometry.
+Planar point-cloud couplings: exact trace assignment and heuristic operator matching. The latter is not a certified spectral OT solve or geodesic; the small static example above solves full convex couplings.
 
 ### MMD Gradient Flow
 
@@ -95,16 +140,23 @@ Mean-field shallow multi-head attention trained against a random teacher across 
 
 ## Reproducing the Numerics
 
-The notebooks use standard scientific Python packages listed in `requirements.txt`. From the repository root, a typical setup and run is:
+From the repository root:
 
 ```bash
 python -m pip install -r requirements.txt
-cd python/mmd
-python generate_mmd_notebook.py
-jupyter nbconvert --to notebook --execute --inplace mmd_flow.ipynb
+python scripts/reproduce.py --check
+python scripts/reproduce.py --all --smoke --output outputs/smoke
+python scripts/reproduce.py mmd --output outputs/mmd-full
 ```
 
-The generated PDF figures are written under `neurips/figures/fig-*`, where the LaTeX source includes them.
+The runner saves executed notebooks, PDFs, and a `run.json` provenance record
+under the selected output directory, leaving manuscript figures untouched.
+`--smoke` uses reduced settings and is not a reproduction of the reported
+results. Omit it for full runs; MLP and attention can be expensive. See the
+[experiment map and numerical caveats](./docs/reproducibility.md).
+
+Continuous integration runs the numerical tests, the four teaching notebooks,
+and reduced versions of all six paper experiments.
 
 ## Building the Paper
 

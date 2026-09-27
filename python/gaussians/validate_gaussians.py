@@ -2,6 +2,8 @@
 
 Run with the notebook's numpy environment. --trajectories additionally checks
 all published Gaussian runs at their configured step size and horizon.
+The default checks also compare the modal covariance equation with a full
+matrix LMO and test Gaussian entropy dissipation through affine transports.
 """
 
 import argparse
@@ -113,6 +115,92 @@ def trajectory_checks(ns, published):
     return results
 
 
+def check_matrix_covariance(ns):
+    worst_rhs = worst_action = 0.0
+    identity = np.eye(2)
+    basis = np.block([[identity, identity], [identity, -identity]]) / np.sqrt(2)
+    cases = [
+        (np.array([0.7, 2.4]), np.array([1.6, 0.8])),
+        (np.array([0.0, 2.4]), np.array([1.6, 0.0])),
+        (np.zeros(2), np.zeros(2)),
+    ]
+    for p in ns["p_values"]:
+        q = 1.0 if np.isinf(p) else 2 * p / (2 * p - 1)
+        for a, b in cases:
+            error = (a - b) / 2 - np.array([0.3, -0.2])
+            root = basis @ np.diag(np.sqrt(np.concatenate((a, b)))) @ basis.T
+            force = basis @ np.diag(np.concatenate((error, -error))) @ basis.T
+            k = force @ root
+            u, singular, vt = np.linalg.svd(k)
+            # Compact SVD: remove roundoff in the exactly null singular subspaces.
+            active = singular > 1e-13 * max(1.0, singular[0])
+            norm = np.linalg.norm(singular[active], ord=q)
+            if norm == 0:
+                velocity = np.zeros_like(k)
+            else:
+                velocity = -(norm ** (2 - q)) * (
+                    (u[:, active] * singular[active] ** (q - 1)) @ vt[active]
+                )
+            covariance_rhs = velocity @ root + root @ velocity.T
+            da, db = ns["rhs_ab_2d"](a, b, p, np.array([0.3, -0.2]))
+            expected = basis @ np.diag(np.concatenate((da, db))) @ basis.T
+            np.testing.assert_allclose(covariance_rhs, expected, atol=2e-13, rtol=2e-13)
+            action = np.linalg.norm(np.linalg.svd(velocity, compute_uv=False), ord=2 * p) ** 2
+            dissipation = -np.sum(k * velocity)
+            np.testing.assert_allclose([action, dissipation], norm ** 2, atol=2e-13, rtol=2e-13)
+            worst_rhs = max(worst_rhs, float(np.max(np.abs(covariance_rhs - expected))))
+            worst_action = max(worst_action, abs(action - norm ** 2), abs(dissipation - norm ** 2))
+    return {"max_covariance_rhs_error": worst_rhs, "max_action_identity_error": worst_action}
+
+
+def check_gaussian_entropy():
+    rng = np.random.default_rng(8)
+    raw = rng.normal(size=(3, 3))
+    covariance = raw @ raw.T + np.eye(3)
+    raw = rng.normal(size=(3, 3))
+    target = raw @ raw.T + 2 * np.eye(3)
+    mean = np.array([0.2, -0.4, 0.7])
+    precision = np.linalg.inv(target)
+    hessian = precision - np.linalg.inv(covariance)
+    offset = precision @ mean
+    force_covariance = hessian @ covariance @ hessian + np.outer(offset, offset)
+    eigenvalues, eigenvectors = np.linalg.eigh(force_covariance)
+    eig_cov, vec_cov = np.linalg.eigh(covariance)
+    root = (vec_cov * np.sqrt(eig_cov)) @ vec_cov.T
+
+    def entropy(m, s):
+        return 0.5 * (np.trace(precision @ s) + m @ precision @ m - 3
+                      + np.linalg.slogdet(target)[1] - np.linalg.slogdet(s)[1])
+
+    worst_action = worst_derivative = 0.0
+    for p in (0.5, 0.75, 1.0, 2.0, np.inf):
+        if p == 0.5:
+            multiplier = np.outer(eigenvectors[:, -1], eigenvectors[:, -1])
+            expected = eigenvalues[-1]
+        else:
+            q = 1.0 if np.isinf(p) else 2 * p / (2 * p - 1)
+            norm = np.linalg.norm(np.sqrt(eigenvalues), ord=q)
+            multiplier = (norm ** (2 - q)) * (
+                (eigenvectors * eigenvalues ** (q / 2 - 1)) @ eigenvectors.T
+            )
+            expected = norm ** 2
+        velocity_operator = -multiplier @ np.column_stack((hessian @ root, offset))
+        action = np.linalg.norm(np.linalg.svd(velocity_operator, compute_uv=False), ord=2 * p) ** 2
+        np.testing.assert_allclose(action, expected, atol=2e-12, rtol=2e-12)
+        step = 1e-6 / max(1.0, np.linalg.norm(multiplier @ hessian, ord=2))
+        energies = []
+        for sign in (1, -1):
+            transport = np.eye(3) - sign * step * multiplier @ hessian
+            energies.append(entropy(mean - sign * step * multiplier @ offset,
+                                    transport @ covariance @ transport.T))
+        derivative = (energies[0] - energies[1]) / (2 * step)
+        np.testing.assert_allclose(derivative, -expected, atol=2e-7, rtol=2e-7)
+        worst_action = max(worst_action, abs(action - expected))
+        worst_derivative = max(worst_derivative, abs(derivative + expected))
+    return {"max_action_identity_error": worst_action,
+            "max_entropy_derivative_error": worst_derivative}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--notebook", type=Path, default=Path(__file__).with_name("gaussian_closed_form.ipynb"))
@@ -120,6 +208,8 @@ def main():
     args = parser.parse_args()
     ns = load_functions(args.notebook)
     report = check_identities(ns)
+    report["matrix_covariance_checks"] = check_matrix_covariance(ns)
+    report["gaussian_entropy_checks"] = check_gaussian_entropy()
     report["published_horizon"] = args.trajectories
     report["integration_parameters"] = {
         "one_mode_T_dt": list(ns["integrate_flow_1d"].__defaults__) if args.trajectories else [0.02, 2e-4],

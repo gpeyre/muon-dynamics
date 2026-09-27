@@ -1,7 +1,2 @@
-numpy
-scipy
-matplotlib
-torch
-jupyter
-nbformat
-cvxpy
+# Full figure-reproduction environment; run from the repository root.
+-e .[experiments]

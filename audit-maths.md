@@ -2,6 +2,108 @@
 
 Date: 2026-09-27.
 
+## Post-Correction Recheck
+
+Rechecked the implemented repairs and their dependencies in the LMO,
+static/dynamic, Gaussian, entropy, Poincare, and spherical arguments.
+The following remaining points were corrected directly in the manuscript.
+None requires withdrawing the corrected theorems.
+
+### R1. Remainder Depends on the Chosen Coupling
+
+In the proof of `app-prop:gaussian-boundary`, the phrase that expanding along
+“any coupling” gives an `O(W_2^2)` remainder was too strong. The correct
+bound is
+
+$$
+\left|\mathcal F(\nu)-\mathcal F(\mu)
+-\int g_\mu(x)\cdot(y-x)\,d\pi\right|
+\le C_\mu\int|y-x|^2\,d\pi,
+$$
+
+for small displacement of the chosen coupling. Its cost need not be the
+optimal Wasserstein cost. For example, with
+$\mathcal F(\mu)=\frac12\int|x|^2d\mu$, $\mu=\nu=\mathcal N(0,I_d)$,
+and $Y=-X$, the remainder is $2d$ although $W_2(\mu,\nu)=0$.
+The main transport--Taylor hypothesis already used the correct bound.
+The boundary proof now uses it as well, so its slope and flow conclusions
+are unaffected.
+
+### R2. Spherical Action Must Include the Time Horizon
+
+`prop:unbalanced` inherited a general interval `[0,T]` from `prop:sphere`
+but compared its action with a distance defined on `[0,1]` without making
+the rescaling explicit. It now states
+$UW_\gamma(\nu_0,\nu_T)^2\le T\int_0^T\gamma(\int v_tv_t^\top d\mu_t)dt$.
+The factor is necessary: in the trace case, the radial path
+$\nu_t=(1+t/T)^2\delta_\omega$ has action $1/T$ and squared endpoint
+distance $1$. Equality of ambient and projected actions is on the same
+time interval. The reaction convention remains $\alpha=2b$, so its cost
+is $\alpha^2/4$; this is a rescaled version of the dynamic formulation in
+[Chizat et al.](https://arxiv.org/pdf/1508.05216), with the normalization
+specified in the manuscript.
+
+### Hypotheses and Proof Details
+
+- Gaussian preservation is now stated on a class of Gaussian states in the
+  energy domain. The entropy example excludes singular Gaussians; the
+  moment-functional example requires smooth dependence on moments and is
+  described in terms of the uncentered cross-moment, not a quadratic
+  dependence on centered mean/covariance coordinates.
+- The boundary proof explicitly verifies finite velocity action even when
+  the affine drift coefficient is not integrable through extinction.
+  Energy derivatives are asserted almost everywhere. Interior invariants
+  *need not* persist after rank loss; they can remain constant if the mode
+  simultaneously becomes stationary.
+- Root-norm trace comparison is explicitly proved using square matrices,
+  so its constants are independent of the Hilbert target. The entropy
+  slope proof cites this comparison in the nonconvex root-norm setting.
+- The entropy perturbation calculation now bounds the moving-reference
+  velocity norms using $1\pm|\varepsilon|\|u\|_\infty$ and uses the exact
+  force pairing. This justifies convergence of the dual norms, not merely
+  convergence of the force field at fixed reference measure.
+- Qualified the nonlocal Gaussian-entropy discussion: nonlocality is
+  generic, not universal; in dimension one every Schatten geometry is W2.
+
+### Checks After Repair
+
+The independent full-matrix LMO check covers positive-definite,
+rank-deficient, and zero covariance states, and agrees with the modal ODE
+to `5.33e-15`; its action/dissipation error is at most `8.89e-15`.
+Affine Gaussian entropy perturbations at `p = 1/2, 3/4, 1, 2, infinity`
+give a maximum action error `6.67e-16` and central-difference energy
+derivative error `5.75e-10`. The 24-case event/refinement validator was
+rerun successfully. These numerical checks support the algebra; the slope,
+compactness, and metric statements rely on their analytical proofs.
+
+The entropy slope, root-norm characterization and BB formula, corrected
+block gauges, finite-time rank-loss criterion, P-L constants, Gaussian
+Poincare comparison, and radial-power strictness argument survived this
+recheck. The unproved extensions listed below remain outside the claims.
+
+## Correction Status
+
+The repair plan below has now been implemented in the manuscript. See the
+2026-09-27 mathematical-corrections section of `modifications.md` for the
+finding-by-finding changes and numerical checks. The original audit is
+preserved below; its source hash, line numbers, and statements about what
+had not yet been edited refer to the pre-correction snapshot.
+
+All ten findings have been addressed. In particular, the entropy slope has
+its own proof, the Gaussian boundary continuation has a conditional metric
+verification and event-aware numerical checks, and the spherical statement
+is explicitly an action projection rather than a fixed-lift isometry.
+The optional square-matrix characterization of root-norm gauges and the
+nonconvex commuting counterexample have also been incorporated.
+
+Still not asserted: global PDE existence/uniqueness, a spherical converse
+lifting theorem, a uniform local entropy P-L theorem from the pointwise
+perturbation expansion alone, or a certified global discretization error.
+These are boundaries of the corrected claims, not conclusions supplied by
+the numerical tests.
+
+## Original Audit
+
 Scope: the current `neurips/paper.tex`, its notation table, and the Gaussian numerical implementation where it bears on the mathematical claims. This is an audit and repair plan, not a modification of the manuscript. The submitted paper and historical rebuttal are not the mathematical reference version for this report.
 
 Source snapshot: `neurips/paper.tex` SHA-256 `c095cc15421d6de5535fcfe1ce08902f0d301745ff4d48f9699bdf181648c423`. Line references below refer to this snapshot; LaTeX labels are included where useful.
