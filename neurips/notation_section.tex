@@ -17,9 +17,9 @@ Notation & Name & First use \\
 \bottomrule
 \endfoot
 $\R^d$ & Euclidean space & Sec.~\ref{sec:flows} \\
-$\mathbb S^d$ & Symmetric matrices & App.~\ref{app:matrix-recap} \\
+$\mathbb S^d$ & Symmetric matrices & Sec.~\ref{sec:flows} \\
 $\mathbb S_+^d$ & PSD matrices & Sec.~\ref{sec:flows} \\
-$\mathbb S_{++}^d$ & Positive definite matrices & Thm.~\ref{thm:selector-structure-paper} \\
+$\mathbb S_{++}^d$ & Positive definite matrices & Prop.~\ref{prop:dual-inverse-trace-selector} \\
 $S\preceq T$ & Loewner order & Sec.~\ref{sec:flows} \\
 $I$, $\Id$ & Identity matrix/map & Sec.~\ref{sec:flows} \\
 $\tr(S)$ & Trace & Def.~\ref{def:monotone-norm} \\
@@ -31,7 +31,7 @@ $\|A\|_{S_p}$ & Schatten $p$-norm & Sec.~\ref{sec:flows} \\
 $A^\dagger$ & Pseudoinverse & Eq.~\eqref{eq:muon-selector} \\
 $\cP_2(\R^d)$ & Measures with finite second moment & Def.~\ref{def:duality} \\
 $\delta_x$ & Dirac mass & Sec.~\ref{sec:flows} \\
-$T_\#\mu$ & Pushforward & Def.~\ref{def:monge} \\
+$T_\#\mu$ & Pushforward & Sec.~\ref{sec:dynamic} \\
 $\Pi(\mu,\nu)$ & Couplings & Def.~\ref{def:static} \\
 $L^2(\mu;\R^d)$ & Square-integrable vector fields & Def.~\ref{def:duality} \\
 $\nabla$, $\nabla_x$ & Euclidean gradient & Sec.~\ref{sec:flows} \\
@@ -56,10 +56,11 @@ Notation & Name & Introduction \\
 \endhead
 \bottomrule
 \endfoot
-$\gamma$ & Matrix norm on $\mathbb S_+^d$ & Sec.~\ref{sec:flows} \\
-$\gamma_p$ & Schatten geometry & Sec.~\ref{sec:flows} \\
-$p$, $q$ & Primal/dual exponents & Rem.~\ref{rem-kgamma-shatten} \\
-$\cK$ & Representing set & Def.~\ref{def:monotone-norm} \\
+$\gamma$ & Monotone matrix gauge on $\mathbb S_+^d$ & Sec.~\ref{sec:flows} \\
+$\gamma_p$ & Schatten-$p$ gauge & Sec.~\ref{sec:flows} \\
+$p'$ & Conjugate exponent of $p$ & Rem.~\ref{rem-kgamma-shatten} \\
+$q=(2p)'$ & Tangent-space dual exponent & Prop.~\ref{prop:schatten} \\
+$\cK$ & Representing set & Def.~\ref{def:representing-set} \\
 $\mathcal P_\gamma$ & Polar set & App.~\ref{app:matrix-recap} \\
 $\mathcal K_{\gamma_p}$ & Schatten representing set & Rem.~\ref{rem-kgamma-shatten} \\
 $\mN(V)$ & Matrix tangent norm & Sec.~\ref{sec:flows} \\
@@ -71,9 +72,10 @@ $\mF(X)$ & Particle objective & Sec.~\ref{sec:flows} \\
 $\MF(\mu)$ & Mean-field objective & Sec.~\ref{sec:flows} \\
 $\MN_\mu(v)$ & Measure tangent norm & Def.~\ref{def:duality} \\
 $\MJ_\gamma^\mu(g)$ & Measure-LMO & Def.~\ref{def:duality} \\
-$S_\mu(g)$ & Gradient covariance & Thm.~\ref{thm:selector-structure-paper} \\
-$Q_\mu^*$ & Inverse-trace minimizer & Thm.~\ref{thm:selector-structure-paper} \\
-$g_\mu$ & Wasserstein gradient & Sec.~\ref{sec:flows} \\
+$\mathcal S_\mu(g)$ & Force covariance & Prop.~\ref{prop:measure-lmo-reduction} \\
+$\mathfrak N_\gamma(T)$ & Root norm of an operator & Def.~\ref{def:root-norm-gauge} \\
+$Q_\mu^*$ & Inverse-trace minimizer & Prop.~\ref{prop:dual-inverse-trace-selector} \\
+$g_\mu$ & Wasserstein force (before normalization) & Sec.~\ref{sec:flows} \\
 $\Wg$ & Static Spectral Wasserstein distance & Def.~\ref{def:static} \\
 $\WQ{Q}$ & Fixed-metric transport cost & Thm.~\ref{thm:minmax} \\
 $c_\gamma$, $C_\gamma$ & Trace comparison constants & Prop.~\ref{prop:bounds} \\
@@ -81,24 +83,33 @@ $\Wgbb$ & Dynamic Spectral Wasserstein distance & Def.~\ref{def:dynamic} \\
 $\cA(\mu,m)$ & Momentum action & Prop.~\ref{prop:momentum} \\
 $\WgM$ & Monge-restricted cost & Def.~\ref{def:monge} \\
 $\phi(z,x)$ & Feature map & Sec.~\ref{sec:mlp-meanfield} \\
+$u$, $v$ & Outer and inner weights (MLP context) & Sec.~\ref{sec:mlp-meanfield} \\
 $H_\mu$ & Mean-field predictor & Sec.~\ref{sec:mlp-meanfield} \\
 $R(H)$ & Risk functional & Sec.~\ref{sec:mlp-meanfield} \\
 $\operatorname{MMD}(\mu,\nu)^2$ & Squared MMD & Sec.~\ref{sec:wasserstein-flows} \\
 $(Q,K,V,O)$ & Attention weights & Sec.~\ref{sec:wasserstein-flows} \\
 $N_{\mathrm{eff}}$ & Effective tokens & Sec.~\ref{sec:wasserstein-flows} \\
-$C_\rho$ & Data covariance & Sec.~\ref{sec:gaussian-linear} \\
-$B_\rho$ & Teacher cross-moment & Sec.~\ref{sec:gaussian-linear} \\
+$C_\rho$ & Data covariance & App.~\ref{app:gaussian-linear} \\
+$B_\rho$ & Teacher cross-moment & App.~\ref{app:gaussian-linear} \\
 $M_\mu$ & Learned linear predictor & App.~\ref{app:gaussian-linear} \\
 $A_\star$ & Teacher matrix & App.~\ref{app:gaussian-linear} \\
 $E_t$ & Linear prediction error & Prop.~\ref{app-prop:gaussian-linear-covariance} \\
 $r_i(t)$ & Modal predictor coefficient & Prop.~\ref{prop:modal-main} \\
 $s_i(t)$ & Modal variance & Prop.~\ref{prop:modal-main} \\
 $\beta_i$ & Teacher mode & Prop.~\ref{prop:modal-main} \\
-$\mathcal N(r,s)$ & Modal normalization & Prop.~\ref{prop:modal-main} \\
+$\mathcal N_t$ & Modal normalization & Prop.~\ref{prop:modal-main} \\
+$\gamma_{\rm blk}$ & Blockwise gauge & App.~\ref{sec:muon-extensions} \\
+$L_\gamma$ & Matrix smoothness constant & Eq.~\eqref{eq:spectral-smoothness} \\
+$r_n=\min(n,d)$ & Matrix rank bound & App.~\ref{sec:smoothness-discretization} \\
 $\mI_p(V)$ & Momentum constitutive map & Eq.~\eqref{eq:matrix-momentum} \\
 $F_h(\mu)$ & Linear measure functional & Thm.~\ref{thm:linearconvex} \\
-$\kappa$ & Geodesic-convexity constant & Def.~\ref{def:geoconvex} \\
+$\kappa$ & Convexity or P-L constant (by context) & Def.~\ref{def:geoconvex} \\
 $\operatorname{Ent}_\nu(\mu)$ & Relative entropy & App.~\ref{app:convexity} \\
+$\KL(\mu\,|\,\nu)$ & Relative entropy / KL divergence & Sec.~\ref{sec:relative-entropy-gaussians} \\
+$|\partial\MF|_\gamma$ & Metric slope of $\MF$ & Sec.~\ref{sec:wasserstein-flows} \\
+$\mathcal E_\gamma^\beta$ & Spectral Dirichlet form & App.~\ref{app:pl-poincare} \\
+$\lambda_{\mathrm P}^\gamma(\beta)$ & Spectral Poincar\'e constant & App.~\ref{app:pl-poincare} \\
+$\theta_p=(2p)'$ & Dirichlet-form Schatten exponent & App.~\ref{app:pl-poincare} \\
 $\Phi$ & Two-homogeneous feature map & App.~\ref{app:homogeneous} \\
 $\Pi_2(\mu)$ & Spherical projection & App.~\ref{app:homogeneous} \\
 $\UWg$ & Unbalanced spherical action & App.~\ref{app:homogeneous} \\

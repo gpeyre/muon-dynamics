@@ -236,16 +236,17 @@ cells = [
         r"""
         ## Run five random initializations in the two temperature regimes
 
-        The trace flow is run for twice the final physical time of the operator
-        flow, as in the MLP experiment. The display normalizes each horizontal
-        axis by the corresponding final time.
+        The nominal Euler horizons are $960\times100=96000$ for the trace flow
+        and $480\times180=86400$ for the operator flow, a ratio of $10/9$.
+        Each display axis is normalized by its own nominal horizon. Global
+        step clipping and coordinate guards mean these are not exact
+        continuous-flow clocks or wall-clock times.
         """
     ),
     code(
         r"""
         n_runs = 5
-        # The physical horizons match the previous doubled-time request, but
-        # with a longer optimization horizon than before.
+        # Twice as many trace steps; unequal step sizes give a 10/9 horizon ratio.
         steps_base = 480
         steps_map = {1: 2 * steps_base, float("inf"): steps_base}
         max_step_norm = 0.45

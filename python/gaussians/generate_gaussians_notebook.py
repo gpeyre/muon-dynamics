@@ -23,7 +23,7 @@ cells = [
         # Gaussian Closed-Form Geometry (1D and 2D)
 
         This notebook generates the Gaussian figures used in the paper:
-        - one-mode trajectories in the $(m,s)$ plane for $p\in\{1,2,4,\infty\}$,
+        - one-mode trajectories in the $(r,s)$ plane for $p\in\{1,2,4,\infty\}$,
         - conserved leaves (separate PDFs),
         - two-mode trajectories in `(r1,r2)` from white-noise initialization for several targets `beta=(beta1,beta2)`.
         """
@@ -87,10 +87,10 @@ cells = [
                 b0 = s_init - r_init
                 return np.sqrt(a0) + np.sqrt(b0)
             p = float(p)
-            r = (p - 1.0) / (2.0 * p - 1.0)
+            exponent = (p - 1.0) / (2.0 * p - 1.0)
             a0 = s_init + r_init
             b0 = s_init - r_init
-            return a0**r + b0**r
+            return a0**exponent + b0**exponent
 
 
         def solve_s_on_invariant(r, level, p):
@@ -104,6 +104,8 @@ cells = [
                 def residual(s):
                     return np.sqrt(s + r) + np.sqrt(s - r) - level
 
+                if residual(lo) > 0.0:
+                    return np.nan
                 while residual(hi) < 0.0:
                     hi *= 2.0
                     if hi > 1e6:
@@ -118,13 +120,15 @@ cells = [
                 return 0.5 * (lo + hi)
 
             p = float(p)
-            r = (p - 1.0) / (2.0 * p - 1.0)
+            exponent = (p - 1.0) / (2.0 * p - 1.0)
             lo = abs(r) + 1e-12
             hi = max(lo + 1.0, 2.0)
 
             def residual(s):
-                return (s + r) ** r + (s - r) ** r - level
+                return (s + r) ** exponent + (s - r) ** exponent - level
 
+            if residual(lo) > 0.0:
+                return np.nan
             while residual(hi) < 0.0:
                 hi *= 2.0
                 if hi > 1e6:
@@ -147,14 +151,15 @@ cells = [
 
         def rhs_ab_1d(a, b, p, target=TARGET):
             q = q_from_p(p)
-            a = max(float(a), 1e-12)
-            b = max(float(b), 1e-12)
+            a = max(float(a), 0.0)
+            b = max(float(b), 0.0)
             aq = a ** (0.5 * q)
             bq = b ** (0.5 * q)
             pref = (aq + bq) ** ((2.0 - q) / q)
             err = 0.5 * (a - b) - target
-            da = -4.0 * err * pref * aq
-            db = 4.0 * err * pref * bq
+            # In one mode, N**(2-q) * psi_q(err) simplifies to err * pref.
+            da = -2.0 * err * pref * aq
+            db = 2.0 * err * pref * bq
             return da, db
 
 
@@ -169,14 +174,14 @@ cells = [
 
             a_new = a + (dt / 6.0) * (k1a + 2.0 * k2a + 2.0 * k3a + k4a)
             b_new = b + (dt / 6.0) * (k1b + 2.0 * k2b + 2.0 * k3b + k4b)
-            return max(a_new, 1e-12), max(b_new, 1e-12)
+            return max(a_new, 0.0), max(b_new, 0.0)
 
 
-        def integrate_flow_1d(r_start, s_start, p, T=18.0, dt=2e-3):
+        def integrate_flow_1d(r_start, s_start, p, T=18.0, dt=2e-4):
             a = s_start + r_start
             b = s_start - r_start
             if not (a > 0.0 and b > 0.0):
-                raise ValueError("Need s0 > |m0|.")
+                raise ValueError("Need s0 > |r0|.")
 
             steps = int(np.ceil(T / dt))
             r_hist = np.empty(steps + 1)
@@ -276,7 +281,7 @@ cells = [
             np.array([1.30, 0.55]),
         ]
 
-        # White-noise isotropic initialization in the reduced coordinates:
+        # Balanced diagonal initialization in the reduced coordinates:
         # all trajectories start from r=(0,0), s=(0.1,10.0).
         r_init_2d = np.zeros(2, dtype=float)
         s_init_2d = np.array([0.1, 10.0], dtype=float)
@@ -285,17 +290,19 @@ cells = [
         def rhs_ab_2d(a, b, p, beta):
             # a,b shape (2,), positive.
             q = q_from_p(p)
-            a = np.maximum(np.asarray(a, dtype=float), 1e-12)
-            b = np.maximum(np.asarray(b, dtype=float), 1e-12)
+            a = np.maximum(np.asarray(a, dtype=float), 0.0)
+            b = np.maximum(np.asarray(b, dtype=float), 0.0)
             r = 0.5 * (a - b)
             err = r - np.asarray(beta, dtype=float)
             aq = a ** (0.5 * q)
             bq = b ** (0.5 * q)
-            norm_term = np.sum(np.abs(2.0 * err) ** q * (aq + bq))
-            norm_term = max(norm_term, 1e-12)
+            norm_term = np.sum(np.abs(err) ** q * (aq + bq))
+            if norm_term == 0.0:
+                return np.zeros_like(a), np.zeros_like(b)
             pref = norm_term ** ((2.0 - q) / q)
-            da = -4.0 * err * pref * aq
-            db = 4.0 * err * pref * bq
+            psi = np.sign(err) * np.abs(err) ** (q - 1.0)
+            da = -2.0 * pref * psi * aq
+            db = 2.0 * pref * psi * bq
             return da, db
 
 
@@ -309,10 +316,10 @@ cells = [
             k4a, k4b = F(a + dt * k3a, b + dt * k3b)
             a_new = a + (dt / 6.0) * (k1a + 2.0 * k2a + 2.0 * k3a + k4a)
             b_new = b + (dt / 6.0) * (k1b + 2.0 * k2b + 2.0 * k3b + k4b)
-            return np.maximum(a_new, 1e-12), np.maximum(b_new, 1e-12)
+            return np.maximum(a_new, 0.0), np.maximum(b_new, 0.0)
 
 
-        def integrate_flow_2d(beta, p, T=18.0, dt=2e-3):
+        def integrate_flow_2d(beta, p, T=18.0, dt=2e-4):
             r0 = r_init_2d.copy()
             s0 = s_init_2d.copy()
             a = s0 + r0

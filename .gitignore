@@ -21,3 +21,7 @@ neurips/template/
 # Python/Jupyter caches.
 __pycache__/
 .ipynb_checkpoints/
+
+# Generated verification artifacts and manuscript submission archive.
+tmp/
+neurips/arxiv-source.tar.gz

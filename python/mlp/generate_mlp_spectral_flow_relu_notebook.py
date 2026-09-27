@@ -41,7 +41,7 @@ cells = [
 
         Teacher has three neurons:
         - $u^\star\in\{+1,+1,-1\}$,
-        - $v^\star$ equally spaced on the unit circle (angles $0,2\pi/3,4\pi/3$).
+        - $v^\star$ on the unit circle at angles $0.38,2.42,4.63$ radians.
         """
     ),
     code(
