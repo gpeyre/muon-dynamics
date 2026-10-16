@@ -41,7 +41,7 @@ Requirements: https://neurips.cc/Conferences/2026/MainTrackHandbook
 - Appendix G records the experimental protocols and limitations. The Gaussian
   modal figures were regenerated after correcting their ODE implementation;
   the neural-network experiments were not rerun for this editorial pass.
-- Main figures now retain readable trajectory panels, with enlarged loss,
+- Main figures retain trajectory panels, with compact single-row loss,
   histogram, and Gaussian diagnostics in the appendix. The archived numerical
   results are unchanged; one legacy PDF legend is corrected by a tested helper.
 - `../python/mlp/validate_initialization.py` independently reproduces the

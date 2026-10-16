@@ -117,9 +117,11 @@ global trajectory error bound.
 
 ## Camera-Ready Figures and Assets
 
-The camera-ready layout enlarges archived vector plots and moves diagnostic
-panels to the appendix; it does not replace their numerical data. A literal
-TeX escape in one old MLP legend is corrected reproducibly with:
+The camera-ready layout places compact diagnostic panels in the appendix;
+it does not replace their numerical data. The MLP and teacher-attention
+histogram panels are rearranged into single rows by clipping the existing
+vector PDFs between their rows. A literal TeX escape in one old MLP legend
+is corrected reproducibly with:
 
 ```bash
 python -m pip install -e '.[publication]'

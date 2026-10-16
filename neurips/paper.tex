@@ -844,7 +844,7 @@ safeguards, and an initialization-only dissipation check.
 %
 We display the particle evolution in the reduced two-dimensional plane
 $|u|v$. The rays associated with the teacher neurons are shown as dashed
-half-lines in Figure~\ref{fig:mlp-trajectories}; enlarged loss and circular
+half-lines in Figure~\ref{fig:mlp-trajectories}; additional loss and circular
 histogram plots are in Appendix~\ref{sec:archived-diagnostics}.
 %
 Changing $p$ visibly changes the paths and the loss profile on these
@@ -929,7 +929,7 @@ consistent with the figure, not a separate proof of its transient behavior.
 \small (a) $p=1$ & \small (b) $p=\infty$
 \end{tabular}
 \caption{MMD particle trajectories on separately normalized nominal horizons.
-The loss curves are displayed at readable scale in
+The corresponding loss curves appear in
 Figure~\ref{fig:mmd-loss}, Appendix~\ref{sec:archived-diagnostics}.}
 \label{fig:mmd-traj}
 \end{figure}
@@ -3568,10 +3568,12 @@ these rank-one and rank-two reductions using the archived trajectories.
 
 \begin{figure}[!ht]
 \centering
-\includegraphics[width=.80\linewidth]{figures/fig-gaussians/gaussian_admissible_cone.pdf}\\
-\small (a) One-mode trajectories\\[2mm]
-\includegraphics[width=.80\linewidth]{figures/fig-gaussians/gaussian_invariant_leaves_p1.pdf}\\
-\small (b) Interior conserved leaves, $p=1$
+\begin{tabular}{@{}c@{\hspace{.03\linewidth}}c@{}}
+\includegraphics[width=.38\linewidth]{figures/fig-gaussians/gaussian_admissible_cone.pdf}
+&
+\includegraphics[width=.38\linewidth]{figures/fig-gaussians/gaussian_invariant_leaves_p1.pdf}\\
+\small (a) One-mode trajectories & \small (b) Conserved leaves, $p=1$
+\end{tabular}
 \caption{Gaussian one-mode geometry. (a) Trajectories in $(r,s)$ for
 $p\in\{1,2,4,\infty\}$. (b) Interior conserved foliation for $p=1$.
 After rank loss, trajectories use the continuation of
@@ -3581,10 +3583,12 @@ Proposition~\ref{app-prop:gaussian-boundary}; interior invariants no longer appl
 
 \begin{figure}[!ht]
 \centering
-\includegraphics[width=.80\linewidth]{figures/fig-gaussians/gaussian_invariant_leaves_pinf.pdf}\\
-\small (a) Interior conserved leaves, $p=\infty$\\[2mm]
-\includegraphics[width=.80\linewidth]{figures/fig-gaussians/gaussian_2d_rplane_targets.pdf}\\
-\small (b) Two-mode dynamics
+\begin{tabular}{@{}c@{\hspace{.03\linewidth}}c@{}}
+\includegraphics[width=.38\linewidth]{figures/fig-gaussians/gaussian_invariant_leaves_pinf.pdf}
+&
+\includegraphics[width=.38\linewidth]{figures/fig-gaussians/gaussian_2d_rplane_targets.pdf}\\
+\small (a) Conserved leaves, $p=\infty$ & \small (b) Two-mode dynamics
+\end{tabular}
 \caption{Gaussian operator leaves and coupled modes. (a) Interior conserved
 foliation for $p=\infty$. (b) Rank-two trajectories in $(r_1,r_2)$, initially
 $r_1=r_2=0$ and $(s_1,s_2)=(0.1,10)$, toward the indicated targets
@@ -3698,17 +3702,17 @@ peak-memory, and elapsed-time records for the archived full experiments
 are unavailable; recent smoke-test timings are not substitutes for them.
 
 \FloatBarrier
-\subsection{Enlarged Archived Diagnostics}
+\subsection{Archived Diagnostics}
 \label{sec:archived-diagnostics}
 These panels show the same archived runs discussed in
-Section~\ref{sec:wasserstein-flows}, at a larger scale for legibility.
+Section~\ref{sec:wasserstein-flows} in compact, single-row layouts.
 The nominal-time and safeguard qualifications of
 Section~\ref{sec:numerical-protocol} apply throughout; the curves have not
 been recalibrated or replaced by new simulations.
 
 \begin{figure}[!ht]
 \centering
-\includegraphics[width=.72\linewidth]{figures/fig-mlp/mlp_relu_energy_evolution.pdf}
+\includegraphics[width=.40\linewidth]{figures/fig-mlp/mlp_relu_energy_evolution.pdf}
 \caption{ReLU MLP energy on separately normalized nominal horizons:
 solid $p=1$, dashed $p=\infty$. Colored vertical lines identify the snapshots
 in Figure~\ref{fig:mlp-histograms}; equal horizontal coordinates do not
@@ -3719,9 +3723,12 @@ Figure~\ref{fig:mlp-trajectories}.}
 
 \begin{figure}[!ht]
 \centering
-\includegraphics[width=.95\linewidth]{figures/fig-mlp/mlp_relu_angular_hist_snapshots_camera_ready.pdf}
+% Split the archived grid in its inter-row whitespace; align the plot baselines.
+\raisebox{.024\linewidth}{\includegraphics[width=.46\linewidth,trim=0 260bp 0 0,clip]{figures/fig-mlp/mlp_relu_angular_hist_snapshots_camera_ready.pdf}}%
+\hspace{.02\linewidth}%
+\includegraphics[width=.46\linewidth,trim=0 0 0 238bp,clip]{figures/fig-mlp/mlp_relu_angular_hist_snapshots_camera_ready.pdf}
 \caption{Circular histogram snapshots for the ReLU MLP, in chronological
-order from left to right and top to bottom. Solid curves correspond to
+order from left to right, with the same angular axis in all panels. Solid curves correspond to
 $p=1$ and dashed curves to $p=\infty$ (Muon); colors match the snapshot
 markers in Figure~\ref{fig:mlp-loss}. Dashed vertical lines mark teacher
 directions. Only the legacy legend text has been corrected.}
@@ -3730,10 +3737,12 @@ directions. Only the legacy legend text has been corrected.}
 
 \begin{figure}[!ht]
 \centering
-\includegraphics[width=.72\linewidth]{figures/fig-attention/attention_energy_decay_dense.pdf}\\
-\small (a) Dense attention\\[2mm]
-\includegraphics[width=.72\linewidth]{figures/fig-attention/attention_energy_decay_sparse.pdf}\\
-\small (b) Sparse attention
+\begin{tabular}{@{}c@{\hspace{.03\linewidth}}c@{}}
+\includegraphics[width=.38\linewidth]{figures/fig-attention/attention_energy_decay_dense.pdf}
+&
+\includegraphics[width=.38\linewidth]{figures/fig-attention/attention_energy_decay_sparse.pdf}\\
+\small (a) Dense attention & \small (b) Sparse attention
+\end{tabular}
 \caption{Shallow-attention loss curves for five paired trials per regime,
 with $p=1$ in blue and $p=\infty$ in red. Each trial redraws both teacher
 and student. Effective support is approximately 16 tokens in the dense
@@ -3744,24 +3753,27 @@ normalized nominal horizons, not matched intrinsic flow times.}
 
 \begin{figure}[!ht]
 \centering
-\includegraphics[width=.80\linewidth]{figures/fig-attention/attention_teacher_histograms.pdf}
+% Reuse the two archived panels side by side, preserving their shared scale.
+\raisebox{.04032\linewidth}{\includegraphics[width=.48\linewidth,trim=0 138bp 0 0,clip]{figures/fig-attention/attention_teacher_histograms.pdf}}%
+\hspace{.04\linewidth}%
+\includegraphics[width=.48\linewidth,trim=0 0 0 115bp,clip]{figures/fig-attention/attention_teacher_histograms.pdf}
 \caption{Teacher-attention histograms for the dense and sparse regimes.
 Weights are truncated to $[0,0.1]$ and renormalized on that interval;
 sparse weights larger than $0.1$ are not displayed. Effective-token
-statistics in the text instead use all attention weights.}
+statistics in the text instead use all attention weights. Both panels use
+the same horizontal scale.}
 \label{fig:attention-histograms}
 \end{figure}
 
 \begin{figure}[!ht]
 \centering
-\includegraphics[width=.90\linewidth]{figures/fig-mmd/mmd_error_decay_p1_vs_pinf.pdf}
+\includegraphics[width=.44\linewidth]{figures/fig-mmd/mmd_error_decay_p1_vs_pinf.pdf}
 \caption{Archived MMD objective values for the trajectories in
 Figure~\ref{fig:mmd-traj}. Nominal horizons are normalized separately for
 $p=1$ and $p=\infty$. These curves do not establish an intrinsic
 convergence-rate or wall-clock ordering.}
 \label{fig:mmd-loss}
 \end{figure}
-\FloatBarrier
 
 \subsection{Couplings and Interpolations}
 This subsection complements Figures~\ref{fig:static-pair} and
