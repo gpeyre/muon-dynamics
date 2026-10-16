@@ -44,6 +44,10 @@ The executed notebook includes plots and outputs. `run.json` records package
 versions, interpreter version, Git revision and dirty state, source/generator
 and toolbox hashes, input-image hashes, smoke overrides, elapsed time, status,
 and PDF artifacts. The kernel sets OpenMP/MKL thread counts to one.
+New manifests also record operating system, architecture, logical CPU count,
+and host memory where available. These describe the host, not actual device
+use or measured peak memory. Complete resource records for the archived full
+experiments are unavailable; smoke-test timings cannot reconstruct them.
 Errors propagate; the partial notebook and failure report are retained.
 The runner refuses to overwrite an existing run directory.
 Seeds are fixed in each experiment. BLAS, hardware, solver, and PyTorch version
@@ -109,4 +113,28 @@ python python/gaussians/validate_rank_events.py
 ```
 
 The rank-event validator performs local refinement near events, not a certified
-global trajectory error bound. The mathematical audit is in `audit-maths.md`.
+global trajectory error bound.
+
+## Camera-Ready Figures and Assets
+
+The camera-ready layout enlarges archived vector plots and moves diagnostic
+panels to the appendix; it does not replace their numerical data. A literal
+TeX escape in one old MLP legend is corrected reproducibly with:
+
+```bash
+python -m pip install -e '.[publication]'
+python scripts/prepare_camera_ready_figures.py
+python -m unittest discover -s tests -p test_publication.py -v
+```
+
+The source PDF is retained. The focused test checks that exactly one text
+operator changes and every plotted path remains unchanged. New MLP outputs
+already use the corrected legend through the notebook generator.
+
+`assets.csv` inventories the nine image masks distributed in `python/data/`
+by filename and checksum. Their historical origin and reuse permissions have
+not been established. Neither their presence here nor their simple shapes
+implies a reuse license. The original toolbox code is MIT-licensed;
+third-party licenses are not superseded by that choice. A source search found
+openly licensed alternatives, but did not establish the provenance of the
+archived files. No masks or published numerical results were replaced.

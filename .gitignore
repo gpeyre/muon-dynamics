@@ -3,8 +3,18 @@
 # arXiv export bundle generated from the paper sources.
 arxiv/
 
-# Local draft/archive material not needed for the public companion repo.
+# Private research, peer review, and editorial material (kept locally).
 draft/
+drafts/
+review/
+reviews/
+private/
+audit/
+audit-*.md
+modifications.md
+neurips/bibliography-audit.md
+
+# Historical manuscript archives.
 neurips/old/
 neurips/template/
 
@@ -16,6 +26,7 @@ neurips/template/
 *.fls
 *.log
 *.out
+*.toc
 *.synctex.gz
 
 # Python/Jupyter caches.

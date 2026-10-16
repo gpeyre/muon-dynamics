@@ -7,7 +7,9 @@ from datetime import datetime, timezone
 import hashlib
 import importlib.metadata
 import json
+import os
 from pathlib import Path
+import platform
 import shutil
 import subprocess
 import sys
@@ -121,6 +123,24 @@ def versions():
     return result
 
 
+def host_info():
+    """Host inventory, not a measurement of a notebook's resource use."""
+    memory = None
+    try:
+        pages, page_size = os.sysconf("SC_PHYS_PAGES"), os.sysconf("SC_PAGE_SIZE")
+        if pages > 0 and page_size > 0:
+            memory = pages * page_size
+    except (AttributeError, OSError, ValueError):
+        pass
+    return {
+        "system": platform.system(), "release": platform.release(),
+        "machine": platform.machine(), "processor": platform.processor() or None,
+        "logical_cpu_count": os.cpu_count(), "host_memory_bytes": memory,
+        "peak_memory_bytes": None,
+        "resource_note": "Host inventory only; device use and peak memory are not measured.",
+    }
+
+
 def run_notebook(name, destination, *, smoke=False, timeout=3600):
     example = name in EXAMPLES
     relative, generator, count = ((f"examples/{name}.ipynb", None, 0) if example else EXPERIMENTS[name])
@@ -152,7 +172,8 @@ def run_notebook(name, destination, *, smoke=False, timeout=3600):
         "started_utc": datetime.now(timezone.utc).isoformat(),
         "source": str(source.relative_to(ROOT)),
         "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
-        "versions": versions(), "smoke_overrides": transformer.changes,
+        "versions": versions(), "host": host_info(),
+        "smoke_overrides": transformer.changes,
         "kernel_environment": {"OMP_NUM_THREADS": "1", "MKL_NUM_THREADS": "1"},
         "status": "running", "artifacts": [],
     }

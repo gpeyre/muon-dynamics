@@ -170,3 +170,11 @@ pdflatex paper.tex
 ```
 
 The `arxiv/` directory is treated as a generated export bundle and is ignored by git.
+
+## License
+
+The original toolbox code, scripts, and notebook code are released under the
+[MIT license](./LICENSE). This grant does not relicense the article, archived
+figures, image masks, or third-party material. Dependencies retain their own
+licenses. Provenance and reuse permissions for some legacy illustration assets
+remain unverified; see the [asset inventory](./docs/assets.csv).

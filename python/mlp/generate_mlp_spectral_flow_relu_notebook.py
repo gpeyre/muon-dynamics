@@ -484,7 +484,7 @@ cells = [
             ):
                 color = blue_red_color(float(e_tgt))
                 ax.plot(theta_grid, d1, color=color, lw=2.0, linestyle="-", label="p=1" if j == 0 else None)
-                ax.plot(theta_grid, di, color=color, lw=2.0, linestyle="--", label=r"p=\infty" if j == 0 else None)
+                ax.plot(theta_grid, di, color=color, lw=2.0, linestyle="--", label="Muon" if j == 0 else None)
                 for th in teacher_theta:
                     ax.axvline(float(th), color="black", linestyle="--", linewidth=0.9)
                 ax.set_xlim(0.0, 2.0 * np.pi)

@@ -1,6 +1,6 @@
 \documentclass{article}
 
-\usepackage[preprint]{neurips_2026}
+\usepackage[main,final]{neurips_2026}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath,amssymb,amsthm,mathtools,mathrsfs}
@@ -243,19 +243,16 @@ LMO to a finite-dimensional matrix problem.
 \label{prop:measure-lmo-reduction}
 Let $S_g\coloneqq\mathcal S_\mu(g)=\int g(x)g(x)^\top\,d\mu(x)$ and let
 $P_g$ be the orthogonal projector onto $\operatorname{range}(S_g)$.  If
-$S_g=0$, then $\MJ_\gamma^\mu(g)=0$.  Otherwise, let
+$S_g=0$, then $\MJ_\gamma^\mu(g)=0$. Otherwise, a valid Measure-LMO is given by
 \[
     A_g\in
     \operatorname*{argmin}_{A=P_gA}
     \left\{
         \tr(S_g^{1/2}A)+\frac12\gamma(A^\top A)
-    \right\}.
+    \right\},
+    \qquad
+    \MJ_\gamma^\mu(g)(x)=A_g^\top S_g^{\dagger/2}g(x).
 \]
-Then
-\[
-    \MJ_\gamma^\mu(g)(x)=A_g^\top S_g^{\dagger/2}g(x)
-\]
-is a valid Measure-LMO.
 \end{proposition}
 
 \begin{proof}
@@ -281,13 +278,12 @@ For force and displacement fields, we use ``covariance'' to mean the
 uncentered second-moment matrix. Covariances of Gaussian laws retain their
 usual centered meaning.
 
-Following \citet{AmbrosioGigliSavare2008}, define the Wasserstein force by
+Following \citet{AmbrosioGigliSavare2008}, define the Wasserstein force and
+the first variation by
 \[
     g_\mu(x)\coloneqq
     \nabla_x\frac{\delta\MF}{\delta\mu}(x),
-\]
-where the first variation satisfies
-\[
+    \qquad
     \left.\frac{d}{d\varepsilon}\MF(\mu+\varepsilon\sigma)
     \right|_{\varepsilon=0}
     =
@@ -304,15 +300,16 @@ The normalized mean-field dynamics is then the PDE
 \partial_t\mu_t+\divv\!\bigl(\mu_t \MJ_\gamma^{\mu_t}(g_{\mu_t})\bigr)=0.
 \end{equation}
 When $\gamma(S)=\tr(S)$, $\MJ_\gamma^\mu(g)=-g$, and this reduces to the
-classical $\Wtwo$ gradient-flow PDE. For discrete measures, one recovers
-ODE~\eqref{eq:ode-basic}.
+usual formal $\Wtwo$ gradient-flow PDE. The particle interpretation requires
+the following transport chain rule, not just a first variation along mixtures.
 
 \begin{proposition}[Finite-width interpretation]
 \label{cor:particle}
-Assume that the normalized continuity equation starting from $\mu_{X_0}$
-preserves empirical measures, and write
-$\mu_t=n^{-1}\sum_i\delta_{x_i(t)}$ and
-$X_t\coloneqq[x_1(t)^\top;\ldots;x_n(t)^\top]$.
+Assume $\mF(X)=n\MF(\mu_X)$ is $C^1$ and, at every empirical state $\mu$,
+$\left.\frac{d}{dh}\MF((\Id+hw)_\#\mu)\right|_{h=0}
+=\int g_\mu\cdot w\,d\mu$ for every field $w$ on its support.
+Let $X_t$ be an absolutely continuous particle curve and set $\mu_t=\mu_{X_t}$,
+using matching matrix and measure LMO selections.
 %
 As long as the atoms remain pairwise distinct, $X_t$ solves
 ODE~\eqref{eq:ode-basic} if and only if $\mu_{X_t}$ solves
@@ -483,14 +480,7 @@ For $\mu,\nu\in\cP_2(\R^d)$,
 \]
 where the supremum ranges over integrable admissible potentials.
 \end{corollary}
-\begin{proof}
-For each fixed $Q\succeq0$, Kantorovich duality for the continuous,
-nonnegative quadratic cost identifies the inner supremum with
-$\WQ{Q}(\mu,\nu)^2$. This remains valid for singular $Q$: equivalently,
-one may transport the pushforwards by $Q^{1/2}$. Apply
-Theorem~\ref{thm:minmax}. The outer maximum is attained by compactness of
-$\cK$ and upper semicontinuity of the infimum of linear functions of $Q$.
-\end{proof}
+The proof is in Appendix~\ref{app:matrix-recap}.
 
 \paragraph{Discrete setting.}
 This subsection spells out the finite-dimensional version used in computations and shows how the abstract coupling problem becomes a concrete convex program. We consider two discrete measures $\mu\coloneqq\sum_{i=1}^n a_i\delta_{x_i}$ and $\nu\coloneqq\sum_{j=1}^m b_j\delta_{y_j}$, with weights $a_i,b_j\ge 0$ summing to one. As in classical Kantorovich transport, a coupling is represented by a transport matrix $P\in\R_+^{n\times m}$ satisfying $P\mathbf 1_m=a$ and $P^\top\mathbf 1_n=b$. The discrete static Spectral Wasserstein problem can then be written as the convex optimization problem
@@ -569,7 +559,7 @@ $\nu=\mathcal N(m_1,\Sigma_1)$. Then
 \[
 \Wg(\mu,\nu)^2
 =
-\inf_{K:\,
+\inf\nolimits_{K:\,
 \left(\begin{smallmatrix}
 \Sigma_0&K\\ K^\top&\Sigma_1
 \end{smallmatrix}\right)\succeq0}
@@ -640,17 +630,10 @@ infimum over admissible $(\mu_t,v_t)$ gives one inequality.
 %
 Conversely, let $\pi$ be an optimal static coupling, set
 $z_t(x,y)=(1-t)x+ty$, and define $\mu_t=(z_t)_\#\pi$. An Eulerian velocity
-field for this curve is
-\[
- v_t(z)=\mathbb E_\pi[y-x\mid z_t=z].
-\]
+field for this curve is $v_t(z)=\mathbb E_\pi[y-x\mid z_t=z]$.
 Conditional Jensen's inequality yields
-\[
- \int v_t v_t^\top\,d\mu_t
- \preceq
- \int (y-x)(y-x)^\top\,d\pi
- \qquad\text{for a.e. }t.
-\]
+$\int v_t v_t^\top\,d\mu_t\preceq\int (y-x)(y-x)^\top\,d\pi$
+for a.e. $t$.
 Monotonicity of $\gamma$ therefore bounds the dynamic action by the static
 cost of $\pi$, proving the reverse inequality.
 \end{proofsketch}
@@ -808,28 +791,22 @@ the operator endpoint.
 
 
 \begin{remark}[Static and infinitesimal views of Muon]\label{rmk:muon-insight}
-For the Muon gauge $\gamma(S)=\lambda_{\max}(S)$, the static optimality
-condition in Theorem~\ref{thm:minmax} gives
-$Q^\star\in\partial\gamma(\Sigma_{\pi^\star})$. Hence $Q^\star$ is supported
-on the top eigenspace of the optimal displacement covariance. When that
-eigenspace is one-dimensional, with unit eigenvector $u^\star$, one may take
-$Q^\star=u^\star(u^\star)^\top$, and $\pi^\star$ is optimal for the projected
-quadratic cost $\langle y-x,u^\star\rangle^2$.
-
-The infinitesimal picture is complementary rather than one-dimensional. If
-$S_g=\int gg^\top\,d\mu$, Corollary~\ref{cor:schatten-measure-selectors} gives
+For $\gamma_\infty(S)=\lambda_{\max}(S)$, the optimal cost certificate
+$Q^\star\in\partial\gamma_\infty(\Sigma_{\pi^\star})$ of
+Theorem~\ref{thm:minmax} is supported on the top eigenspace of the
+displacement covariance. If this eigenspace is spanned by a unit vector
+$u^\star$, then $Q^\star=u^\star(u^\star)^\top$ and $\pi^\star$ minimizes
+the projected cost $\langle y-x,u^\star\rangle^2$.
+Infinitesimally, write $S_g=\int gg^\top d\mu$ and let $P_g$ project onto
+its range. Corollary~\ref{cor:schatten-measure-selectors} gives the selector
+and its velocity covariance:
 \[
- \MJ_{\gamma_\infty}^\mu(g)
- =-\tr(S_g^{1/2})S_g^{\dagger/2}g,
- \qquad
- \int \MJ_{\gamma_\infty}^\mu(g)
-       \MJ_{\gamma_\infty}^\mu(g)^\top\,d\mu
- =\tr(S_g^{1/2})^2P_g,
+ v=\MJ_{\gamma_\infty}^\mu(g)=-\tr(S_g^{1/2})S_g^{\dagger/2}g,
+ \qquad \int vv^\top d\mu=\tr(S_g^{1/2})^2P_g.
 \]
-where $P_g$ projects onto $\operatorname{range}(S_g)$. Thus the Measure-LMO
-whitens the force covariance on its active subspace. This covariance
-equalization is the mean-field counterpart of Muon's orthogonalizing matrix
-update.
+Thus the flow equalizes the velocity covariance on the active force
+subspace, rather than restricting motion to one direction. This is the
+mean-field counterpart of Muon's matrix orthogonalization.
 \end{remark}
 
 \paragraph{Mean-field models for two-layer MLPs.}
@@ -867,8 +844,8 @@ safeguards, and an initialization-only dissipation check.
 %
 We display the particle evolution in the reduced two-dimensional plane
 $|u|v$. The rays associated with the teacher neurons are shown as dashed
-half-lines in Figure~\ref{fig:mlp-trajectories}(c)--(d); concentration toward
-these rays can also be read from the circular histograms.
+half-lines in Figure~\ref{fig:mlp-trajectories}; enlarged loss and circular
+histogram plots are in Appendix~\ref{sec:archived-diagnostics}.
 %
 Changing $p$ visibly changes the paths and the loss profile on these
 normalized plots. We do not infer an intrinsic convergence-rate or
@@ -884,26 +861,19 @@ chain-rule justification.
 
 \begin{figure}[!th]
 \centering
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{@{}c@{}c@{}c@{}c@{}}
-\includegraphics[height=.16\textheight]{figures/fig-mlp/mlp_relu_energy_evolution.pdf}
+\begin{tabular}{@{}c@{\hspace{.02\linewidth}}c@{}}
+\includegraphics[width=.40\linewidth]{figures/fig-mlp/mlp_relu_uvbabs_trajectory_p1.pdf}
 &
-\includegraphics[height=.16\textheight]{figures/fig-mlp/mlp_relu_angular_hist_snapshots_combined.pdf}
-&
-\includegraphics[height=.16\textheight]{figures/fig-mlp/mlp_relu_uvbabs_trajectory_p1.pdf}
-&
-\includegraphics[height=.16\textheight]{figures/fig-mlp/mlp_relu_uvbabs_trajectory_pinf.pdf}
+\includegraphics[width=.40\linewidth]{figures/fig-mlp/mlp_relu_uvbabs_trajectory_pinf.pdf}
 \\
-\small (a) Energy decay
+\small (a) $p=1$
 &
-\small (b) Circular histograms
-&
-\small (c) Trajectories ($p=1$)
-&
-\small (d) Trajectories ($p=\infty$)
+\small (b) $p=\infty$
 \end{tabular}
-}
-\caption{Two-layer ReLU MLP training under spectral flows. (a) Energy decay on separately display coordinates, not necessarily matched intrinsic nominal horizons (solid: $p=1$, dashed: $p=\infty$), with colored vertical bars marking the snapshot times used in (b). (b) Circular histogram snapshots at matched normalized times. (c)--(d) Particle trajectories in the reduced parameter plane $(|u|v_1,|u|v_2)$ for $p=1$ and $p=\infty$.}
+\caption{Two-layer ReLU MLP trajectories in the reduced parameter plane
+$(|u|v_1,|u|v_2)$. Dashed rays indicate the teacher neurons.
+The archived runs use separately normalized nominal horizons; neither
+intrinsic flow times nor wall-clock runtimes are matched.}
 \label{fig:mlp-trajectories}
 \end{figure}
 
@@ -920,7 +890,8 @@ condition for the least-squares force. Preservation of this moment bound and
 regularity of the selected velocity remain additional requirements for a
 rigorous flow application.
 
-Figure~\ref{fig:attention-trajectories} reports an experiment with $m=16$
+Figure~\ref{fig:attention-trajectories} in Appendix~\ref{sec:archived-diagnostics}
+reports an experiment with $m=16$
 tokens, $d_T=4$, and $d_H=3$: we fit a random five-head teacher by least squares
 using a student with $n=200$ heads, over five paired trials with new teacher
 and student initializations. The unfolding is a single $200\times48$ particle
@@ -933,25 +904,6 @@ The plots use separately normalized nominal horizons, with the safeguards
 specified in Appendix~\ref{sec:numerical-protocol}; they are not calibrated
 intrinsic flow times. The different loss profiles illustrate the dependence
 on the geometry without establishing a convergence-rate ordering.
-
-\begin{figure}[!h]
-\centering
-\begin{tabular}{@{}c@{}c@{}c@{}}
-\includegraphics[width=.33\linewidth]{figures/fig-attention/attention_energy_decay_dense.pdf}
-&
-\includegraphics[width=.33\linewidth]{figures/fig-attention/attention_energy_decay_sparse.pdf}
-&
-\includegraphics[width=.33\linewidth]{figures/fig-attention/attention_teacher_histograms.pdf}
-\\[-2mm]
-\small Dense attention
-&
-\small Sparse attention
-&
-\small Histogram of teacher attention\\[-2mm]
-\end{tabular}
-\caption{Shallow-attention training under spectral flows ($p=1$ in blue, $p=\infty$ in red), with five runs per setting. Dense attention corresponds to high temperature and effective support near all tokens ($N_{\mathrm{eff}}\approx16$), while sparse attention corresponds to low temperature and effective support around two tokens ($N_{\mathrm{eff}}\approx2.1$). The right panel shows teacher-attention histograms truncated to $[0,0.1]$ and renormalized on that interval; sparse weights larger than $0.1$ are not displayed.}
-\label{fig:attention-trajectories}
-\end{figure}
 
 \paragraph{MMD gradient flows.}
 As a simple model for generative fitting and sampling, in the spirit of MMD-based generative models \citep{LiSwerskyZemel2015,BinkowskiSutherlandArbelGretton2018}, we also minimize $\MF(\mu)=\operatorname{MMD}(\mu,\nu)^2$ for the energy-distance kernel $k(x,y)=-\|x-y\|_2$. For empirical measures $\mu=n^{-1}\sum_i\delta_{x_i}$ and $\nu=m^{-1}\sum_j\delta_{y_j}$, with $n=m=200$ particles in $\R^2$, this objective is $\operatorname{MMD}(\mu,\nu)^2=n^{-2}\sum_{i,i'}k(x_i,x_{i'})+m^{-2}\sum_{j,j'}k(y_j,y_{j'})-2(nm)^{-1}\sum_{i,j}k(x_i,y_j)$, with a small smoothing of $\|x-y\|_2$ in the implementation. The same initial cloud evolves with $p=1$ and $p=\infty$.
@@ -970,9 +922,15 @@ consistent with the figure, not a separate proof of its transient behavior.
 
 \begin{figure}[!ht]
 \centering
-\includegraphics[width=\linewidth]{figures/fig-mmd/mmd_combined_p1_pinf_decay.pdf}\vspace{-3mm}
-\caption{MMD trajectories and objective decay on separately normalized nominal horizons for $p=1$ and $p=\infty$. The left and middle panels show all particle trajectories, while the right panel shows the decay of $\operatorname{MMD}(\mu_t,\nu)^2$.
-}
+\begin{tabular}{@{}c@{\hspace{.02\linewidth}}c@{}}
+\includegraphics[width=.48\linewidth]{figures/fig-mmd/mmd_trajectories_p1.pdf}
+&
+\includegraphics[width=.48\linewidth]{figures/fig-mmd/mmd_trajectories_pinf.pdf}\\
+\small (a) $p=1$ & \small (b) $p=\infty$
+\end{tabular}
+\caption{MMD particle trajectories on separately normalized nominal horizons.
+The loss curves are displayed at readable scale in
+Figure~\ref{fig:mmd-loss}, Appendix~\ref{sec:archived-diagnostics}.}
 \label{fig:mmd-traj}
 \end{figure}
 
@@ -988,54 +946,35 @@ PDE closes on its mean and covariance. This illustrates a concrete advantage
 of the measure formulation: infinitely many neurons can be described by a
 finite-dimensional moment system. Appendix~\ref{app:gaussian-linear}
 derives this system, its modal reductions, and the $p$-dependent implicit
-covariance bias illustrated in Figure~\ref{fig:gaussian-leaves}.
+covariance bias illustrated in Figures~\ref{fig:gaussian-leaves}
+and~\ref{fig:gaussian-coupling}.
 
 \paragraph{Geodesic convexity.}
 
-Full geodesic convexity, i.e., the condition
-$\mathcal F(\mu_t)\le(1-t)\mathcal F(\mu_0)+t\mathcal F(\mu_1)$ along every
-constant-speed $\Wg$-geodesic $(\mu_t)_{t\in[0,1]}$, is a central structural
-notion for metric gradient flows \citep{AmbrosioGigliSavare2008}, as it
-underlies stability and global convergence results. The following proposition
-summarizes several basic results along the static displacement geodesics of
-Corollary~\ref{cor:geodesic}; Appendix~\ref{app:convexity} contains the proofs,
-a refined $\kappa$-convexity analysis, and a discussion of the distinction
-between displacement and full geodesic convexity.
-%
-These results are, however, of limited direct use in the machine-learning
-examples considered above, since the quadratic functionals arising in the MLP
-and MMD settings are typically not geodesically convex. Note also that
-geodesic convexity of the entropy is stated only along a selected geodesic:
-uniqueness of geodesics may fail, in particular for $p=\infty$, which makes
-the Muon setting more delicate.
-
-\begin{proposition}[Basic displacement-convexity examples]
-\label{prop:basic-geodesic-convexity}
-Assume that $\gamma$ is monotone.
-%
-A linear functional $\mathcal F(\mu)=\int h\,d\mu$, with $h:\R^d\to\R$, is
-convex along every static displacement geodesic if and only if $h$ is convex.
-%
-A quadratic interaction functional
-$\mathcal F(\mu)=\int h(x,y)\,d\mu(x)d\mu(y)$, with
-$h:\R^d\times\R^d\to\R$, is convex along every static displacement geodesic
-if $h$ is convex.
-%
-Finally, let $d\nu=Z^{-1}e^{-V}dx$, with $V\in C^2(\R^d)$ convex, and define
-the relative entropy by $\mathcal F(\mu)=\int\log(d\mu/d\nu)\,d\mu$ if
-$\mu\ll\nu$, and $\mathcal F(\mu)=+\infty$ otherwise. If the representing set
-$\cK$ contains at least one positive definite matrix, then for every
-$\mu_0,\mu_1\in\cP_2(\R^d)$ there exists a constant-speed $\Wg$-geodesic
-$(\mu_t)_{t\in[0,1]}$ joining them along which $\mathcal F$ is convex.
-\end{proposition}
+Geodesic convexity is a useful structural benchmark for metric gradient
+flows \citep{AmbrosioGigliSavare2008}, but is generally too strong for the
+MLP and MMD objectives above. Appendix~\ref{app:convexity} studies convex
+potentials and interactions along static displacement geodesics, and relative
+entropy along a selected geodesic; Proposition~\ref{prop:basic-geodesic-convexity}
+collects the basic examples. Convexity along every metric geodesic is stronger
+and can fail at the Muon endpoint, where geodesics need not be unique.
 
 A weaker route to convergence is a Polyak--Lojasiewicz (P-L) inequality,
-which controls the energy gap by the squared metric slope without requiring
-geodesic convexity. Appendix~\ref{app:pl-poincare} proves transfer of such
-inequalities from $\Wtwo$ and studies their local, Poincar\'e counterpart
-for relative entropy. These results give convergence criteria and explicit
-examples of spectral gains, not a convergence theorem for the neural-network
-objectives above.
+which requires $|\partial\MF|_\gamma^2\ge2\kappa(\MF-\MF_\star)$, with
+$\MF_\star=\inf\MF> -\infty$, without geodesic convexity. If
+$\gamma(S)\le C_\gamma\tr(S)$, then
+$|\partial\MF|_\gamma\ge C_\gamma^{-1/2}|\partial\MF|_2$;
+thus a $\Wtwo$ P-L constant $\kappa$ transfers as $\kappa/C_\gamma$
+(Proposition~\ref{prop:pl-transfer}). For every Schatten $p\ge1$, including
+Muon, one can take $C_\gamma=1$. Writing $E(t)=\MF(\mu_t)-\MF_\star$,
+a global $\kappa$-P-L flow with $E(0)<\infty$ satisfying
+$E'=-|\mu'|_\gamma^2=-|\partial\MF|_\gamma^2$ obeys
+$E(t)\le E(0)e^{-2\kappa t}$. If $\MF$ is also lower semicontinuous, then
+$\Wg(\mu_t,\mu_\infty)\le\sqrt{2E(0)/\kappa}\,e^{-\kappa t}$ for some
+minimizer $\mu_\infty$ (Proposition~\ref{prop:gamma-pl-convergence}).
+Appendix~\ref{app:pl-poincare} gives the proofs and the local Poincar\'e
+analysis for relative entropy. These are conditional guarantees, not a
+convergence theorem or a trajectory-wise speed comparison for the networks above.
 
 \section{Conclusion}
 \label{sec:conclusion} 
@@ -1057,12 +996,16 @@ avoidance of local minima for shallow neural-network and MMD losses.
 
 
 
-\section*{Acknowledgments}
-The author thanks Tony Silveti-Falls for insightful discussions about Muon
-and Newton--Schulz approximation. This work was supported by the European
-Research Council (ERC project WOLF) and the French government under the
-management of Agence Nationale de la Recherche as part of the ``France 2030''
-program, reference ANR-23-IACL-0008 (PRAIRIE-PSAI).
+\clearpage
+\begin{ack}
+The author thanks Tony Silveti-Falls, from whom he learned about the intricate
+details of Muon and with whom he had insightful discussions about
+Newton--Schulz approximation. This work was supported by the European Research
+Council (ERC project WOLF) and the French government under the management of
+Agence Nationale de la Recherche as part of the ``France 2030'' program,
+reference ANR-23-IACL-0008 (PRAIRIE-PSAI).
+The author has no competing financial interests to disclose.
+\end{ack}
 
 \bibliographystyle{plainnat}
 \bibliography{references}
@@ -1520,13 +1463,33 @@ objective.
 
 \paragraph{Proof of Proposition~\ref{cor:particle}.}
 \begin{proof}
-For empirical measures, the continuity equation reduces to the characteristic system for the atoms. The identity $\MN_{\mu_X}(v)^2=n^{-1}\mN(V)^2$ and the normalized pairing $n^{-1}\tr(G^\top V)$ reduce the measure-level minimization in Definition~\ref{def:duality} to
+At distinct atoms, prescribe $w(x_i)=H_i$ for an arbitrary matrix $H$.
+The transport chain rule gives
+\[
+ D\mF(X)[H]
+ =n\left.\frac{d}{dh}\MF((\Id+hw)_\#\mu_X)\right|_{h=0}
+ =\sum_i g_{\mu_X}(x_i)\cdot H_i .
+\]
+Thus $\nabla\mF(X)=G$, where $G_i=g_{\mu_X}(x_i)^\top$.
+At coincident atoms the corresponding rows of $\nabla\mF$ are equal
+by permutation symmetry; moving the whole coincident group in the
+chain rule identifies each row with the same force.
+The transport expansion in Theorem~\ref{prop:formalGF} is a sufficient
+condition for this chain rule.
+
+For distinct atoms, testing the weak continuity equation near each atom
+identifies its velocity almost everywhere. The same identification applies
+to coincident groups assigned a common velocity.
+The identity $\MN_{\mu_X}(v)^2=n^{-1}\mN(V)^2$ and pairing
+$n^{-1}\tr(G^\top V)$ reduce Definition~\ref{def:duality} to
 $$
 \operatorname*{argmin}_V\left\{\tr(G^\top V)+\frac12\mN(V)^2\right\}=\mJ_\gamma(G).
 $$
-Stacking the particle velocities yields $\dot X_t=\mJ_\gamma(G_t)$. Under
-the convention of the main text, $\mF(X)=n\MF(\mu_X)$ and
-$\nabla\mF(X)=G_t$, giving exactly ODE~\eqref{eq:ode-basic}. For the unscaled
+With matching selections, stacking the velocities therefore gives
+$\dot X_t=\mJ_\gamma(\nabla\mF(X_t))$, exactly
+ODE~\eqref{eq:ode-basic}. Conversely, this ODE yields the weak continuity
+equation by differentiating test functions along the particles.
+For the unscaled
 objective $\widetilde{\mF}(X)=\MF(\mu_X)$, one instead has
 $\nabla\widetilde{\mF}(X)=n^{-1}G_t$ and
 $\dot X_t=n^{-1}\mJ_\gamma(G_t)$ by one-homogeneity. This is the same weak
@@ -1698,6 +1661,15 @@ $Q^\star\in\partial\gamma(\Sigma_{\pi^\star})$, proving the stated
 optimality relation.
 \end{proof}
 
+
+\begin{proof}[Proof of Corollary~\ref{cor:kantorovich-potentials}]
+For each fixed $Q\succeq0$, Kantorovich duality for the continuous,
+nonnegative quadratic cost identifies the inner supremum with
+$\WQ{Q}(\mu,\nu)^2$. This remains valid for singular $Q$: equivalently,
+one may transport the pushforwards by $Q^{1/2}$. Apply
+Theorem~\ref{thm:minmax}. The outer maximum is attained by compactness of
+$\cK$ and upper semicontinuity of the infimum of linear functions of $Q$.
+\end{proof}
 
 \subsection{Metric property from the robust-cost formulation}
 \label{subsec:metric-static}
@@ -2075,6 +2047,18 @@ using $S_g=\int gg^\top d\mu$ and the Hilbert-space operator $T_g$ from
 Proposition~\ref{prop:measure-lmo-reduction}.
 It gives a convex dissipation and an energy-decreasing generalized gradient
 system while $S_{g_{\mu_t}}\preceq\alpha^2I$.
+Here $\alpha$ bounds the square root of the \emph{normalized} force covariance.
+For $\mu=\mu_X$ and $M_i=g_\mu(x_i)^\top$, the stacked field velocity is
+\begin{equation}\label{eq:ns-empirical-scaling}
+ -M p_{\alpha,k}(M^\top M/n)
+ =\sqrt n\,\mathcal U_{\sqrt n\alpha,k}(M),
+ \qquad M^\top M/n\preceq\alpha^2I.
+\end{equation}
+Indeed, rescaling $M/\sqrt n$ by $\alpha$ and $M$ by $\sqrt n\alpha$
+gives the same initial Newton--Schulz iterate. The field convention
+therefore differs from applying $\mathcal U_{\alpha,k}$ directly to $M$;
+the homogeneous clock conversion of Proposition~\ref{cor:particle}
+cannot be reused at fixed $\alpha$.
 
 What does not follow is a gradient flow for a fixed $\Wg$ metric:
 finite-step fixed-scale maps are not one-homogeneous in the force, whereas
@@ -3192,6 +3176,9 @@ $\frac12\iint K(x,y)\,d\mu(x)d\mu(y)$ satisfy the same estimate when
 $K$ has bounded Hessian, by applying its Taylor formula to $\pi\otimes\pi$.
 These examples concern the differential of the energy; they do not by
 themselves establish regularity of the selected spectral velocity.
+At empirical measures, their transport expansion gives the chain rule
+of Proposition~\ref{cor:particle}; their particle lifts are $C^1$ by
+ordinary finite-dimensional differentiation.
 
 
 
@@ -3570,39 +3557,41 @@ inequality and the energy identity give the reverse bound almost everywhere.
 Integrating yields the metric energy-dissipation identity across rank changes.
 \end{proof}
 
-For the first mode in Figure~\ref{fig:gaussian-leaves}(d), $\alpha_1=0.1$,
+For the first mode in Figure~\ref{fig:gaussian-coupling}(b), $\alpha_1=0.1$,
 so $R_{2,1}=0.4$, $R_{4,1}\simeq0.252$, and $R_{\infty,1}=0.2$.
 All four plotted targets exceed the latter two bounds in absolute value,
 and three exceed the first. These trajectories therefore require the
 boundary continuation, not just the positive-definite covariance formula.
 
-Figure~\ref{fig:gaussian-leaves} illustrates these rank-one and rank-two reductions.
+Figures~\ref{fig:gaussian-leaves} and~\ref{fig:gaussian-coupling} illustrate
+these rank-one and rank-two reductions using the archived trajectories.
 
 \begin{figure}[!ht]
 \centering
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{@{}c@{}c@{}c@{}c@{}}
-\includegraphics[height=.13\textheight]{figures/fig-gaussians/gaussian_admissible_cone.pdf}
-&
-\includegraphics[height=.13\textheight]{figures/fig-gaussians/gaussian_invariant_leaves_p1.pdf}
-&
-\includegraphics[height=.13\textheight]{figures/fig-gaussians/gaussian_invariant_leaves_pinf.pdf}
-&
-\includegraphics[height=.13\textheight]{figures/fig-gaussians/gaussian_2d_rplane_targets.pdf}
-\\[-1mm]
- (a) 1-mode trajectories
-&
- (b) Leaves, $p=1$
-&
- (c) Leaves, $p=\infty$
-&
- (d) 2-mode \\[-2mm]
-\end{tabular}
-}
-\caption{Closed-form Gaussian geometry. Panel (a): one-mode trajectories in $(r,s)$, for $p\in\{1,2,4,\infty\}$. Panels (b)--(c): interior conserved foliations for the two endpoint geometries. Panel (d): two-mode rank-two dynamics in the $(r_1,r_2)$ plane; all trajectories start from $r_1=r_2=0$, $(s_1,s_2)=(0.1,10)$, and each group targets a different $(\beta_1,\beta_2)$. After rank loss, trajectories use the zero-eigenvalue continuation of Proposition~\ref{app-prop:gaussian-boundary}; the interior invariants no longer apply.}
+\includegraphics[width=.80\linewidth]{figures/fig-gaussians/gaussian_admissible_cone.pdf}\\
+\small (a) One-mode trajectories\\[2mm]
+\includegraphics[width=.80\linewidth]{figures/fig-gaussians/gaussian_invariant_leaves_p1.pdf}\\
+\small (b) Interior conserved leaves, $p=1$
+\caption{Gaussian one-mode geometry. (a) Trajectories in $(r,s)$ for
+$p\in\{1,2,4,\infty\}$. (b) Interior conserved foliation for $p=1$.
+After rank loss, trajectories use the continuation of
+Proposition~\ref{app-prop:gaussian-boundary}; interior invariants no longer apply.}
 \label{fig:gaussian-leaves}
 \end{figure}
 
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=.80\linewidth]{figures/fig-gaussians/gaussian_invariant_leaves_pinf.pdf}\\
+\small (a) Interior conserved leaves, $p=\infty$\\[2mm]
+\includegraphics[width=.80\linewidth]{figures/fig-gaussians/gaussian_2d_rplane_targets.pdf}\\
+\small (b) Two-mode dynamics
+\caption{Gaussian operator leaves and coupled modes. (a) Interior conserved
+foliation for $p=\infty$. (b) Rank-two trajectories in $(r_1,r_2)$, initially
+$r_1=r_2=0$ and $(s_1,s_2)=(0.1,10)$, toward the indicated targets
+$(\beta_1,\beta_2)$. The same rank-boundary continuation is used as in
+Figure~\ref{fig:gaussian-leaves}.}
+\label{fig:gaussian-coupling}
+\end{figure}
 
 For a rank-two target
 $$
@@ -3617,7 +3606,7 @@ Thus the trace geometry evolves the two learned directions independently,
 whereas every $p>1$ geometry shares a global normalization across them. This
 is the simplest Gaussian setting where the matrix nature of the spectral flow
 is visible at the predictor level rather than only through a time rescaling of
-a single scalar mode. In Figure~\ref{fig:gaussian-leaves}(d), this coupling
+a single scalar mode. In Figure~\ref{fig:gaussian-coupling}(b), this coupling
 appears as distinct planar paths toward different targets
 $(\beta_1,\beta_2)$ under the same initialization.
 
@@ -3625,6 +3614,7 @@ $(\beta_1,\beta_2)$ under the same initialization.
 
 
 %%%%
+\FloatBarrier
 \section{Numerical Protocols and Additional Examples}
 \label{app:extra-static-dynamic}
 \subsection{Time Normalization and Numerical Safeguards}
@@ -3678,6 +3668,8 @@ per displayed step is consequently $0.92334$, not $2.55765$.
 The script \texttt{python/mlp/validate\_initialization.py} reproduces these
 checks directly from the notebook without running training. An initial
 dissipation ratio alone cannot calibrate the entire trajectories.
+We therefore retain the archived curves without relabeling them by this
+ratio; their interpretation is qualitative.
 
 For attention, the five paired trials redraw both teacher and student.
 The effective-token statistics use all attention weights, whereas the
@@ -3699,6 +3691,77 @@ $8.6\times10^{-5}$. These are local consistency checks, not a certified
 global error bound; in particular, classical fourth-order accuracy is not
 assumed at nonsmooth events. This path interpretation is separate from the
 empirical neural-network clocks.
+
+The public reproduction runner records software versions, source and input
+hashes, elapsed time, and host information for new runs. Complete hardware,
+peak-memory, and elapsed-time records for the archived full experiments
+are unavailable; recent smoke-test timings are not substitutes for them.
+
+\FloatBarrier
+\subsection{Enlarged Archived Diagnostics}
+\label{sec:archived-diagnostics}
+These panels show the same archived runs discussed in
+Section~\ref{sec:wasserstein-flows}, at a larger scale for legibility.
+The nominal-time and safeguard qualifications of
+Section~\ref{sec:numerical-protocol} apply throughout; the curves have not
+been recalibrated or replaced by new simulations.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=.72\linewidth]{figures/fig-mlp/mlp_relu_energy_evolution.pdf}
+\caption{ReLU MLP energy on separately normalized nominal horizons:
+solid $p=1$, dashed $p=\infty$. Colored vertical lines identify the snapshots
+in Figure~\ref{fig:mlp-histograms}; equal horizontal coordinates do not
+represent equal intrinsic flow times. Particle trajectories appear in
+Figure~\ref{fig:mlp-trajectories}.}
+\label{fig:mlp-loss}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=.95\linewidth]{figures/fig-mlp/mlp_relu_angular_hist_snapshots_camera_ready.pdf}
+\caption{Circular histogram snapshots for the ReLU MLP, in chronological
+order from left to right and top to bottom. Solid curves correspond to
+$p=1$ and dashed curves to $p=\infty$ (Muon); colors match the snapshot
+markers in Figure~\ref{fig:mlp-loss}. Dashed vertical lines mark teacher
+directions. Only the legacy legend text has been corrected.}
+\label{fig:mlp-histograms}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=.72\linewidth]{figures/fig-attention/attention_energy_decay_dense.pdf}\\
+\small (a) Dense attention\\[2mm]
+\includegraphics[width=.72\linewidth]{figures/fig-attention/attention_energy_decay_sparse.pdf}\\
+\small (b) Sparse attention
+\caption{Shallow-attention loss curves for five paired trials per regime,
+with $p=1$ in blue and $p=\infty$ in red. Each trial redraws both teacher
+and student. Effective support is approximately 16 tokens in the dense
+regime and 2.1 in the sparse regime. The horizontal axes use separately
+normalized nominal horizons, not matched intrinsic flow times.}
+\label{fig:attention-trajectories}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=.80\linewidth]{figures/fig-attention/attention_teacher_histograms.pdf}
+\caption{Teacher-attention histograms for the dense and sparse regimes.
+Weights are truncated to $[0,0.1]$ and renormalized on that interval;
+sparse weights larger than $0.1$ are not displayed. Effective-token
+statistics in the text instead use all attention weights.}
+\label{fig:attention-histograms}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=.90\linewidth]{figures/fig-mmd/mmd_error_decay_p1_vs_pinf.pdf}
+\caption{Archived MMD objective values for the trajectories in
+Figure~\ref{fig:mmd-traj}. Nominal horizons are normalized separately for
+$p=1$ and $p=\infty$. These curves do not establish an intrinsic
+convergence-rate or wall-clock ordering.}
+\label{fig:mmd-loss}
+\end{figure}
+\FloatBarrier
 
 \subsection{Couplings and Interpolations}
 This subsection complements Figures~\ref{fig:static-pair} and
@@ -3827,6 +3890,24 @@ Figure~\ref{fig:extra-static-interp} displays the corresponding displacement-int
 \section{Geodesic Convexity}
 \label{app:convexity}
 This section studies one of the basic structural notions behind metric gradient flows, namely geodesic convexity, for the Spectral Wasserstein geometries introduced above. Geodesic convexity is desirable because it supports stability and global convergence statements \citep{AmbrosioGigliSavare2008}, but for many machine-learning objectives it is arguably too strong, so here it is used as a structural benchmark rather than as a blanket modeling assumption.
+
+\begin{proposition}[Basic displacement-convexity examples]
+\label{prop:basic-geodesic-convexity}
+Assume that $\gamma$ is monotone.
+A linear functional $\mathcal F(\mu)=\int h\,d\mu$, with $h:\R^d\to\R$, is
+convex along every static displacement geodesic if and only if $h$ is convex.
+A quadratic interaction functional
+$\mathcal F(\mu)=\int h(x,y)\,d\mu(x)d\mu(y)$, with
+$h:\R^d\times\R^d\to\R$, is convex along every static displacement geodesic
+if $h$ is convex.
+Finally, let $d\nu=Z^{-1}e^{-V}dx$, with $V\in C^2(\R^d)$ convex, and define
+the relative entropy by $\mathcal F(\mu)=\int\log(d\mu/d\nu)\,d\mu$ if
+$\mu\ll\nu$, and $\mathcal F(\mu)=+\infty$ otherwise. If the representing set
+$\cK$ contains at least one positive definite matrix, then for every
+$\mu_0,\mu_1\in\cP_2(\R^d)$ there exists a constant-speed $\Wg$-geodesic
+$(\mu_t)_{t\in[0,1]}$ joining them along which $\mathcal F$ is convex.
+\end{proposition}
+
 \subsection{Definition and General Setup}
 This subsection recalls the relevant notion of convexity along Spectral Wasserstein geodesics and explains why it matters for the variational analysis of the flow.
 When one studies gradient flows in metric spaces, geodesic convexity plays the
@@ -3944,32 +4025,22 @@ $$
 \qquad
 \text{for every }z\in\R^d,\ Q\in\cK.
 $$
-Let
-$$
-\mu_t=((1-t)x+ty)_\#\pi_*
-$$
-be any static displacement geodesic, write $z_t=(1-t)x+ty$ and
-$\Delta=y-x$. Differentiating under the integral sign gives
-$$
-\frac{d^2}{dt^2}F_h(\mu_t)
-=
-\int \Delta^\top \nabla^2 h(z_t)\Delta\,d\pi_*(x,y).
-$$
-For every $Q\in\cK$ this implies
-$$
-\frac{d^2}{dt^2}F_h(\mu_t)
-\ge
-\kappa\int \Delta^\top Q\Delta\,d\pi_*(x,y).
-$$
-Since $\kappa\ge0$, taking the maximum over $Q\in\cK$ yields
-$$
-\frac{d^2}{dt^2}F_h(\mu_t)
-\ge
-\kappa\gamma\!\left(\int \Delta\Delta^\top\,d\pi_*(x,y)\right)
-=
-\kappa\Wg(\mu_0,\mu_1)^2.
-$$
-Integrating twice in $t$ gives the $\kappa$-geodesic convexity estimate.
+For each fixed $Q\in\cK$, the function
+$z\mapsto h(z)-\frac{\kappa}{2}z^\top Qz$ is convex. Hence
+\[
+ h((1-t)x+ty)\le (1-t)h(x)+th(y)
+ -\frac{\kappa}{2}t(1-t)(y-x)^\top Q(y-x).
+\]
+Integrate against any static optimal coupling $\pi_*$ and then maximize
+$\tr(Q\Sigma_{\pi_*})$ over $Q\in\cK$. Since $\kappa\ge0$, this gives
+\[
+ F_h(\mu_t)\le (1-t)F_h(\mu_0)+tF_h(\mu_1)
+ -\frac{\kappa}{2}t(1-t)\Wg(\mu_0,\mu_1)^2.
+\]
+No differentiation under the integral is needed. Convexity of $h$ gives an
+affine lower bound, so these integrals are well-defined on $\cP_2$;
+the argument applies to finite endpoint energies, with the other cases
+understood in the extended-value sense.
 
 Conversely, test the midpoint inequality between
 $\delta_{z-\varepsilon\xi}$ and $\delta_{z+\varepsilon\xi}$. It gives
@@ -5352,5 +5423,7 @@ formulation is an interesting open direction.
 
 \input{notation_section.tex}
 
+\clearpage
+\input{checklist.tex}
 
 \end{document}
