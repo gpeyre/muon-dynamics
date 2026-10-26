@@ -1,0 +1,162 @@
+@import 'reveal.js/reveal.css';
+@import 'katex/dist/katex.min.css';
+
+:root {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #20242a;
+  background: #fff;
+  --blue: #2563db;
+  --red: #df4754;
+  --muted: #717983;
+  --hairline: #e2e6ec;
+  --current: var(--blue);
+  font-synthesis: none;
+  letter-spacing: 0;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; }
+button, input { font: inherit; }
+button, a, input { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--blue); outline-offset: 5px; }
+a { color: inherit; text-decoration: none; }
+a:hover { color: var(--blue); }
+.reveal { font-size: 20px; line-height: 1.4; height: 100svh; }
+.reveal .slides { inset: 0; width: 100%; height: 100%; text-align: left; }
+.reveal .slides > section {
+  width: 100%; height: 100%; padding: 48px 64px 66px;
+  overflow: auto; text-align: left;
+}
+.reveal .slides > section.present { display: flex !important; flex-direction: column; }
+.reveal h1, .reveal h2, .reveal h3, .reveal p { margin: 0; font-weight: 400; }
+.reveal h1, .reveal h2 { letter-spacing: 0; }
+.reveal .slides section .fragment { transition-duration: .2s; }
+.title-slide { isolation: isolate; }
+#cover-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+.title-content { margin: auto 0; width: max-content; max-width: 100%; }
+.venue { color: var(--muted); font-size: 17px; margin-bottom: 30px !important; }
+.reveal h1 { font-family: Georgia, 'Times New Roman', serif; font-size: 72px; line-height: 1.12; }
+.author { font-size: 25px; margin-top: 44px; }
+.affiliation { font-size: 18px; color: var(--muted); margin-top: 8px !important; }
+.title-links { display: flex; gap: 28px; margin-top: 34px; color: #505b68; font-size: 16px; }
+.title-links a { display: inline-flex; align-items: center; gap: 5px; min-height: 32px; }
+.title-links svg { width: 16px; height: 16px; }
+.slide-heading { margin-bottom: 30px; flex: 0 0 auto; }
+.reveal h2 { font-size: 39px; line-height: 1.15; font-weight: 500; }
+.measure-layout { display: grid; grid-template-columns: 1.07fr 1fr; gap: 54px; flex: 1; min-height: 0; }
+.mathematics { padding-top: 6px; min-width: 0; }
+.objective { font-size: 35px; margin-bottom: 13px; }
+.empirical { font-size: 28px; margin-bottom: 31px; color: var(--blue); }
+.examples { display: grid; gap: 24px; }
+.example { border-left: 2px solid var(--hairline); padding-left: 20px; }
+.reveal h3 { font-size: 21px; font-weight: 600; margin-bottom: 5px; }
+.example-equation { font-size: 21px; margin-bottom: 7px; }
+.example p { font-size: 15px; color: #65707a; line-height: 1.55; }
+.example p .katex { font-size: 1.1em; }
+.separator { margin: 0 4px; color: #929aa3; }
+.reference { color: #708192; font-size: 11px; vertical-align: super; padding-left: 3px; }
+.experiment { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.plot-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; height: 34px; flex: 0 0 auto; }
+.legend { display: flex; align-items: center; gap: 21px; font-size: 17px; }
+.legend > span { display: inline-flex; align-items: center; gap: 7px; }
+.legend i { display: inline-block; flex-shrink: 0; }
+.contour-swatch { width: 20px; height: 12px; border: 1px solid var(--blue); border-radius: 50%; box-shadow: inset 0 0 0 3px white, inset 0 0 0 4px #2563db70; }
+.initial-swatch { width: 9px; height: 9px; border: 1.5px solid var(--blue); border-radius: 50%; }
+.particle-swatch { width: 9px; height: 9px; background: var(--current); border-radius: 50%; }
+.energy-readout { display: inline-flex; gap: 12px; align-items: baseline; font-size: 15px; color: var(--muted); }
+.energy-readout output { min-width: 45px; color: #3d4651; font-variant-numeric: tabular-nums; }
+.plot-area { position: relative; flex: 1; min-height: 300px; }
+#particle-canvas { display: block; width: 100%; height: 100%; }
+#load-status { position: absolute; inset: 40% 0 auto; text-align: center; font-size: 16px; color: var(--muted); }
+#load-status[hidden] { display: none; }
+.experiment-controls { display: grid; grid-template-columns: 1fr 1.6fr auto; gap: 21px; align-items: start; border-top: 1px solid var(--hairline); padding-top: 17px; min-height: 93px; }
+.experiment-controls label { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 16px; margin-bottom: 4px; }
+.experiment-controls output { font-size: 14px; font-variant-numeric: tabular-nums; color: #54606e; min-width: 33px; text-align: right; }
+input[type=range] { appearance: none; width: 100%; height: 22px; margin: 0; background: transparent; cursor: pointer; display: block; touch-action: pan-y; }
+input[type=range]::-webkit-slider-runnable-track { height: 3px; border-radius: 2px; background: #dfe5ed; }
+input[type=range]::-moz-range-track { height: 3px; border-radius: 2px; background: #dfe5ed; }
+input[type=range]::-webkit-slider-thumb { appearance: none; width: 13px; height: 13px; margin-top: -5px; border: 2px solid white; border-radius: 50%; background: #303a48; box-shadow: 0 0 0 1px #303a4830; }
+input[type=range]::-moz-range-thumb { width: 10px; height: 10px; border: 2px solid white; border-radius: 50%; background: #303a48; }
+#time-slider::-webkit-slider-thumb { background: var(--current); }
+#time-slider::-moz-range-thumb { background: var(--current); }
+.range-ends { display: flex; justify-content: space-between; font-size: 10px; color: #929ba7; }
+.playback-buttons { display: flex; gap: 4px; align-self: center; }
+.icon-button { display: inline-flex; justify-content: center; align-items: center; width: 36px; height: 36px; border: 0; border-radius: 4px; color: #737e8c; background: transparent; cursor: pointer; flex-shrink: 0; padding: 0; }
+.icon-button svg { width: 19px; height: 19px; stroke-width: 1.7; }
+.icon-button:hover { background: #f0f3f7; color: #1c2b3e; }
+.icon-button:disabled { opacity: .25; cursor: default; }
+.icon-button[aria-pressed=true] { color: #374252; background: #f4f6f9; }
+.play-button { color: var(--blue); background: #eef4ff; }
+.deck-navigation { position: fixed; right: 27px; bottom: 16px; display: flex; align-items: center; gap: 3px; z-index: 20; background: #ffffffed; }
+.slide-number { font-size: 12px; color: #8d96a1; font-variant-numeric: tabular-nums; margin-right: 12px; }
+.fullscreen-button { margin-left: 11px; }
+.reveal .progress { background: transparent; color: var(--blue); height: 2px; }
+.katex { font-size: 1.06em; }
+.reveal .slide-background { background: white; }
+
+@media (min-width: 1600px) {
+  .reveal .slides > section { padding-left: max(64px, calc((100% - 1420px) / 2)); padding-right: max(64px, calc((100% - 1420px) / 2)); padding-top: 65px; padding-bottom: 95px; }
+  .measure-layout { max-height: 690px; margin-top: 10px; }
+  .examples { gap: 35px; }
+  .empirical { margin-bottom: 42px; }
+}
+@media (max-height: 760px) and (min-width: 901px) {
+  .reveal .slides > section { padding: 32px 48px 56px; }
+  .slide-heading { margin-bottom: 20px; }
+  .reveal h2 { font-size: 34px; }
+  .objective { font-size: 30px; margin-bottom: 8px; }
+  .empirical { font-size: 25px; margin-bottom: 20px; }
+  .examples { gap: 20px; }
+  .reveal h3 { font-size: 19px; }
+  .example-equation { font-size: 19px; }
+  .example p { font-size: 14px; }
+  .plot-area { min-height: 250px; }
+  .reveal h1 { font-size: 62px; }
+}
+@media (max-width: 1100px) and (min-width: 901px) {
+  .measure-layout { gap: 26px; grid-template-columns: 1.1fr 1fr; }
+  .experiment-controls { gap: 12px; grid-template-columns: 1fr 1.3fr; }
+  .playback-buttons { grid-column: 1 / -1; justify-content: center; margin-top: -7px; }
+  .energy-readout { font-size: 12px; }
+}
+@media (max-width: 900px) {
+  .reveal .slides > section { padding: 30px 28px 76px; }
+  .reveal h2 { font-size: 32px; }
+  .measure-layout { display: flex; flex-direction: column; gap: 35px; min-height: auto; flex: none; }
+  .mathematics { flex: none; }
+  .objective { font-size: 31px; }
+  .empirical { font-size: 25px; margin-bottom: 30px; }
+  .examples { gap: 24px; }
+  .experiment { min-height: 440px; flex: none; }
+  .plot-area { height: 350px; flex: none; }
+  .reveal h1 { font-size: 54px; }
+  .title-content { margin: 9vh 0 auto; }
+  .icon-button { width: 44px; height: 44px; }
+  .experiment-controls { gap: 15px; }
+  .deck-navigation { right: 14px; bottom: 10px; }
+}
+@media (max-width: 520px) {
+  .reveal .slides > section { padding: 26px 21px 76px; }
+  .reveal h1 { font-size: 36px; line-height: 1.2; }
+  .venue { font-size: 14px; margin-bottom: 22px !important; }
+  .author { font-size: 22px; margin-top: 29px; }
+  .affiliation { font-size: 15px; }
+  .title-links { margin-top: 22px; }
+  .reveal h2 { font-size: 29px; }
+  .objective { font-size: 28px; }
+  .empirical { font-size: 24px; }
+  .reveal h3 { font-size: 19px; }
+  .example { padding-left: 13px; }
+  .example-equation { font-size: 17px; }
+  .example p { font-size: 14px; }
+  .plot-heading { gap: 6px; }
+  .legend { gap: 15px; font-size: 15px; }
+  .energy-readout { gap: 6px; font-size: 12px; }
+  .experiment-controls { grid-template-columns: 1fr 1.6fr; }
+  .playback-buttons { grid-column: 1 / -1; justify-content: center; }
+  .plot-area { height: 310px; }
+  input[type=range] { height: 32px; }
+}
+@media print {
+  .deck-navigation, .experiment-controls, .title-links { display: none; }
+}

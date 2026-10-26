@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="Interactive lectures on Muon dynamics and optimization over probability measures, by Gabriel Peyre.">
+  <title>Muon Dynamics as a Spectral Wasserstein Flow</title>
+</head>
+<body>
+  <main class="reveal">
+    <div class="slides">
+      <section id="title" class="title-slide" aria-label="Title">
+        <canvas id="cover-canvas" aria-hidden="true"></canvas>
+        <div class="title-content">
+          <p class="venue">NeurIPS 2026</p>
+          <h1>Muon Dynamics<br>as a Spectral<br>Wasserstein Flow</h1>
+          <div class="author">Gabriel Peyr&eacute;</div>
+          <p class="affiliation">CNRS &amp; ENS, PSL Universit&eacute;</p>
+          <div class="title-links">
+            <a href="https://arxiv.org/abs/2604.04891" target="_blank" rel="noopener">Paper <i data-lucide="arrow-up-right"></i></a>
+            <a href="https://github.com/gpeyre/muon-dynamics" target="_blank" rel="noopener">Code <i data-lucide="arrow-up-right"></i></a>
+          </div>
+        </div>
+        <aside class="notes">An idealized deterministic, continuous-time view of matrix-normalized optimization. The opening animation is a trace/W2 energy-distance particle flow, not a claim about Muon acceleration.</aside>
+      </section>
+
+      <section id="measures" class="measures-slide" aria-labelledby="measures-title">
+        <header class="slide-heading"><h2 id="measures-title">Optimization over measures</h2></header>
+        <div class="measure-layout">
+          <div class="mathematics">
+            <div class="objective" data-math="\min_{\alpha\in\mathcal P(\mathbb R^d)} f(\alpha)"></div>
+            <div class="empirical" data-math="\alpha=\frac1n\sum_{i=1}^n\delta_{x_i}"></div>
+            <div class="examples">
+              <article class="example">
+                <h3>Generative modeling</h3>
+                <div class="example-equation" data-math="f(\alpha)=D(\alpha\mid\beta)"></div>
+                <p><span data-math="\beta"></span>: data distribution <span class="separator">&middot;</span> <span data-math="x_i"></span>: generated samples</p>
+              </article>
+              <article class="example">
+                <h3>Two-layer neural networks</h3>
+                <div class="example-equation" data-math="h_\alpha(z)=\int u\,\sigma(\langle v,z\rangle)\,d\alpha(u,v)"></div>
+                <p><span data-math="x_i=(u_i,v_i)"></span>: outer/inner weights <span class="separator">&middot;</span> <span data-math="f"></span>: empirical loss</p>
+              </article>
+              <article class="example">
+                <h3>Single-cell trajectory inference</h3>
+                <div class="example-equation">Waddington landscape<a class="reference" href="https://doi.org/10.1038/s41592-025-02855-4" target="_blank" rel="noopener" aria-label="Reference: STORIES, Nature Methods 2026" title="STORIES, Nature Methods (2026)">[1]</a></div>
+                <p><span data-math="x_i"></span>: cell states <span class="separator">&middot;</span> trajectories between cell fates</p>
+              </article>
+            </div>
+          </div>
+
+          <div class="experiment" aria-label="Interactive energy-distance particle flow">
+            <div class="plot-heading">
+              <div class="legend">
+                <span><i class="contour-swatch"></i><span data-math="\beta"></span></span>
+                <span><i class="initial-swatch"></i><span data-math="\alpha_0"></span></span>
+                <span><i class="particle-swatch" id="current-swatch"></i><span data-math="\alpha_t"></span></span>
+              </div>
+              <span class="energy-readout"><span data-math="f(\alpha_t)"></span><output id="energy-value">&mdash;</output></span>
+            </div>
+            <div class="plot-area">
+              <canvas id="particle-canvas" role="img" aria-label="Particles approaching a two-Gaussian target, with blue density contours and gray trajectories"></canvas>
+              <p id="load-status" role="status">Loading experiment&hellip;</p>
+            </div>
+            <div class="experiment-controls" aria-label="Experiment controls">
+              <div class="particle-control">
+                <label for="count-slider"><span data-math="n"></span><output id="count-value" for="count-slider">64</output></label>
+                <input id="count-slider" type="range" min="0" max="5" step="1" value="3" aria-label="Number of particles" aria-valuetext="64 particles" disabled>
+                <div class="range-ends"><span>8</span><span>256</span></div>
+              </div>
+              <div class="time-control">
+                <label for="time-slider"><span data-math="t"></span><output id="time-value" for="time-slider">0.00</output></label>
+                <input id="time-slider" type="range" min="0" max="16" step="0.01" value="0" aria-label="Flow time" disabled>
+                <div class="range-ends"><span>0</span><span>16</span></div>
+              </div>
+              <div class="playback-buttons">
+                <button id="restart" class="icon-button" aria-label="Restart experiment" title="Restart experiment" disabled><i data-lucide="rotate-ccw"></i></button>
+                <button id="play" class="icon-button play-button" aria-label="Play" title="Play" disabled><i data-lucide="play"></i></button>
+                <button id="trails" class="icon-button" aria-label="Particle trajectories" title="Particle trajectories" aria-pressed="true" disabled><i data-lucide="route"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          Equal-weight particle measures. Generative modeling: D is any suitable discrepancy.
+          For two-layer networks, u is the outer weight and v the inner weight; for training data
+          (z_j,y_j), f(alpha) = (1/m) sum_j loss(h_alpha(z_j),y_j).
+          Single-cell example: learn cell-fate landscapes and population trajectories from
+          snapshots. This is a modeling perspective, not a universal description of biology.
+          Reference: Huizing, Samaran et al., STORIES, Nature Methods 23, 522-531 (2026),
+          doi:10.1038/s41592-025-02855-4.
+          Experiment: W2 descent of squared MMD for the energy-distance kernel -|x-y|,
+          numerically smoothed as -sqrt(|x-y|^2 + 0.001^2). Target: 2,048 fixed samples
+          of an equal mixture of two Gaussians. Contours show the population mixture density.
+          Explicit Euler, dt=0.04, T=16; 101 saved frames, linearly interpolated for playback.
+          Changing n chooses a separately computed interacting-particle system, not a subset
+          of the same simulated flow. Initial clouds share a fixed nested random sample.
+        </aside>
+      </section>
+    </div>
+  </main>
+
+  <nav class="deck-navigation" aria-label="Slide navigation">
+    <span id="slide-number" class="slide-number" aria-live="polite">01 / 02</span>
+    <button id="previous-slide" class="icon-button" aria-label="Previous slide" title="Previous slide"><i data-lucide="chevron-left"></i></button>
+    <button id="next-slide" class="icon-button" aria-label="Next slide" title="Next slide"><i data-lucide="chevron-right"></i></button>
+    <button id="fullscreen" class="icon-button fullscreen-button" aria-label="Full screen" title="Full screen"><i data-lucide="maximize"></i></button>
+  </nav>
+  <noscript>This interactive presentation requires JavaScript.</noscript>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
