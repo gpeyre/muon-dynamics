@@ -55,9 +55,9 @@ test('the population density and contours describe a normalized Gaussian mixture
   assert.ok(contours.every(contour => contour.coordinates.length > 0));
 });
 
-test('colors run from blue to red, with bounded endpoints', () => {
-  assert.equal(colorAt(-1), `rgb(${BLUE.join(', ')})`);
-  assert.equal(colorAt(2), `rgb(${RED.join(', ')})`);
+test('colors run from red initial particles to the blue target, with bounded endpoints', () => {
+  assert.equal(colorAt(-1), `rgb(${RED.join(', ')})`);
+  assert.equal(colorAt(2), `rgb(${BLUE.join(', ')})`);
   assert.notEqual(colorAt(.5), colorAt(0));
 });
 

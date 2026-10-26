@@ -1,14 +1,18 @@
 import Reveal from 'reveal.js';
 import Notes from 'reveal.js/plugin/notes';
 import katex from 'katex';
-import { createIcons, ArrowUpRight, ChevronLeft, ChevronRight, Maximize, Minimize, Play, Pause, RotateCcw, Route } from 'lucide';
+import { createIcons, ArrowUpRight, ChevronLeft, ChevronRight, Maximize, Minimize, Play, Pause, RotateCcw, Route, List, X } from 'lucide';
 import { colorAt, interpolate, validateDataset } from './experiment.js';
 import { ParticlePlot } from './plot.js';
+import { appendTeachingSlides, teachingSlides } from './content.js';
+import { Demo } from './demos.js';
 import './style.css';
 
-const icons = { ArrowUpRight, ChevronLeft, ChevronRight, Maximize, Minimize, Play, Pause, RotateCcw, Route };
+const icons = { ArrowUpRight, ChevronLeft, ChevronRight, Maximize, Minimize, Play, Pause, RotateCcw, Route, List, X };
 const $ = id => document.getElementById(id);
 const refreshIcons = () => createIcons({ icons });
+appendTeachingSlides();
+const demos = new Map();
 for (const element of document.querySelectorAll('[data-math]')) {
   katex.render(element.dataset.math, element, { throwOnError: true, output: 'htmlAndMathml' });
 }
@@ -17,10 +21,40 @@ refreshIcons();
 const deck = new Reveal({
   disableLayout: true, controls: false, progress: true, hash: true,
   center: false, transition: 'fade', transitionSpeed: 'fast',
-  touch: false, scrollActivationWidth: null, plugins: [Notes],
+  touch: false, overview: false, scrollActivationWidth: null, plugins: [Notes],
   keyboardCondition: event => !event.target.closest('input, button, a, select'),
-  keyboard: { 32: () => { if (deck.getIndices().h === 1) togglePlayback(); else deck.next(); } },
+  keyboard: { 32: () => {
+    if (deck.getIndices().h === 1) togglePlayback();
+    else if (demos.get(deck.getCurrentSlide().id)?.playButton) demos.get(deck.getCurrentSlide().id).togglePlay();
+    else deck.next();
+  } },
 });
+
+const sections = [...document.querySelectorAll('.slides > section')];
+sections.forEach((section, i) => {
+  const button = document.createElement('button');
+  const heading = section.querySelector('h1,h2').cloneNode(true);
+  heading.querySelectorAll('br').forEach(br => br.replaceWith(' '));
+  button.textContent = `${String(i + 1).padStart(2, '0')}  ${heading.textContent}`;
+  button.addEventListener('click', () => { deck.slide(i); $('slide-index').close(); });
+  $('index-contents').append(button);
+});
+$('open-index').addEventListener('click', () => $('slide-index').showModal());
+$('close-index').addEventListener('click', () => $('slide-index').close());
+$('slide-index').addEventListener('click', event => { if (event.target === $('slide-index')) $('slide-index').close(); });
+
+function fitEquations() {
+  for (const element of document.querySelectorAll('section.present .equation')) {
+    element.style.fontSize = '';
+    const rendered = element.querySelector('.katex');
+    if (rendered && rendered.getBoundingClientRect().width > element.clientWidth) {
+      const size = parseFloat(getComputedStyle(element).fontSize);
+      element.style.fontSize = `${Math.max(14, size * element.clientWidth / rendered.getBoundingClientRect().width * .98)}px`;
+    }
+  }
+}
+window.addEventListener('resize', () => requestAnimationFrame(fitEquations));
+document.fonts.ready.then(fitEquations);
 
 let dataset;
 let plot;
@@ -39,7 +73,8 @@ function updateNavigation() {
   $('previous-slide').disabled = index === 0;
   $('next-slide').disabled = index === total - 1;
   if (index !== 1) setPlaying(false);
-  requestAnimationFrame(() => { plot?.draw(); cover?.draw(); });
+  for (const [id, demo] of demos) if (id !== deck.getCurrentSlide().id && demo.playing) demo.setPlaying(false);
+  requestAnimationFrame(() => { plot?.draw(); cover?.draw(); demos.get(deck.getCurrentSlide().id)?.draw(); fitEquations(); });
 }
 
 function setPlaying(value) {
@@ -106,7 +141,7 @@ document.addEventListener('fullscreenchange', () => {
 if (!document.fullscreenEnabled) $('fullscreen').hidden = true;
 document.addEventListener('visibilitychange', () => {
   lastFrame = null;
-  if (document.hidden) setPlaying(false);
+  if (document.hidden) { setPlaying(false); for (const demo of demos.values()) demo.setPlaying(false); }
 });
 deck.on('slidechanged', updateNavigation);
 await deck.initialize();
@@ -129,9 +164,28 @@ try {
   console.error(error);
 }
 
+try {
+  const response = await fetch(`${import.meta.env.BASE_URL}data/lecture.json`);
+  if (!response.ok) throw new Error(`Lecture data download failed (${response.status})`);
+  const data = await response.json();
+  if (data.version !== 1 || !data.flow?.experiments?.length || !data.transport?.experiments?.length) throw new Error('Unsupported lecture dataset');
+  const networks = await fetch(`${import.meta.env.BASE_URL}data/networks.json`);
+  if (!networks.ok) throw new Error(`Network examples download failed (${networks.status})`);
+  data.networks = await networks.json();
+  for (const definition of teachingSlides.filter(slide => slide.demo)) {
+    demos.set(definition.id, new Demo($(definition.id), definition, data, refreshIcons));
+  }
+  document.body.dataset.lectureReady = 'true';
+  fitEquations();
+} catch (error) {
+  document.querySelectorAll('.demo-status').forEach(element => { element.textContent = 'The experiment could not be loaded. Reload to retry.'; element.setAttribute('role', 'alert'); });
+  console.error(error);
+}
+
 function animate(now) {
   const elapsed = lastFrame === null ? 0 : Math.min((now - lastFrame) / 1000, .1);
   lastFrame = now;
+  if (!document.hidden) demos.get(deck.getCurrentSlide().id)?.tick(elapsed);
   if (dataset && !document.hidden) {
     if (playing && deck.getIndices().h === 1) {
       time = Math.min(dataset.horizon, time + elapsed * 1.6);

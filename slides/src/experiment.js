@@ -8,7 +8,7 @@ export function clamp(value, min, max) {
 
 export function colorAt(fraction) {
   const s = clamp(fraction, 0, 1);
-  return `rgb(${BLUE.map((value, i) => Math.round(value + s * (RED[i] - value))).join(', ')})`;
+  return `rgb(${RED.map((value, i) => Math.round(value + s * (BLUE[i] - value))).join(', ')})`;
 }
 
 export function interpolate(experiment, time, horizon, output = new Float64Array(experiment.count * 2)) {

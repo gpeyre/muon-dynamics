@@ -94,6 +94,7 @@
           numerically smoothed as -sqrt(|x-y|^2 + 0.001^2). Target: 2,048 fixed samples
           of an equal mixture of two Gaussians. Contours show the population mixture density.
           Explicit Euler, dt=0.04, T=16; 101 saved frames, linearly interpolated for playback.
+          Initial particles are red, target contours blue, and moving particles interpolate from red to blue.
           Changing n chooses a separately computed interacting-particle system, not a subset
           of the same simulated flow. Initial clouds share a fixed nested random sample.
         </aside>
@@ -103,10 +104,16 @@
 
   <nav class="deck-navigation" aria-label="Slide navigation">
     <span id="slide-number" class="slide-number" aria-live="polite">01 / 02</span>
+    <button id="open-index" class="icon-button" aria-label="Slide index" title="Slide index"><i data-lucide="list"></i></button>
     <button id="previous-slide" class="icon-button" aria-label="Previous slide" title="Previous slide"><i data-lucide="chevron-left"></i></button>
     <button id="next-slide" class="icon-button" aria-label="Next slide" title="Next slide"><i data-lucide="chevron-right"></i></button>
     <button id="fullscreen" class="icon-button fullscreen-button" aria-label="Full screen" title="Full screen"><i data-lucide="maximize"></i></button>
   </nav>
+
+  <dialog id="slide-index" aria-labelledby="index-title">
+    <header><h2 id="index-title">Slides</h2><button id="close-index" class="icon-button" aria-label="Close slide index" title="Close"><i data-lucide="x"></i></button></header>
+    <div id="index-contents"></div>
+  </dialog>
   <noscript>This interactive presentation requires JavaScript.</noscript>
   <script type="module" src="/src/main.js"></script>
 </body>

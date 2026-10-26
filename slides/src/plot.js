@@ -104,7 +104,7 @@ export class ParticlePlot {
     }
 
     if (this.time > 0 && !cover) {
-      ctx.strokeStyle = 'rgba(37, 99, 219, .42)';
+      ctx.strokeStyle = 'rgba(223, 71, 84, .50)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       const initial = experiment.frames[0];
