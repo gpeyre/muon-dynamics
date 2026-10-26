@@ -31,7 +31,7 @@ a:hover { color: var(--blue); }
 .reveal h1, .reveal h2, .reveal h3, .reveal p { margin: 0; font-weight: 400; }
 .reveal h1, .reveal h2 { letter-spacing: 0; }
 .reveal .slides section .fragment { transition-duration: .2s; }
-.title-slide { isolation: isolate; }
+.title-slide { isolation: isolate; background: #0b1019; color: #f7f9fc; }
 #cover-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
 .title-content { margin: auto 0; width: max-content; max-width: 100%; }
 .venue { color: var(--muted); font-size: 17px; margin-bottom: 30px !important; }
@@ -41,6 +41,17 @@ a:hover { color: var(--blue); }
 .title-links { display: flex; gap: 28px; margin-top: 34px; color: #505b68; font-size: 16px; }
 .title-links a { display: inline-flex; align-items: center; gap: 5px; min-height: 32px; }
 .title-links svg { width: 16px; height: 16px; }
+.title-slide .title-content { max-width: 57%; }
+.title-slide .venue { color: #a3b8d5; }
+.title-slide .affiliation { color: #aebed3; }
+.title-slide .title-links { color: #dae4f0; align-items: center; }
+.title-slide .title-links a:hover { color: #7ebaff; }
+.title-slide .ambient-toggle { color: #b8cbe2; margin-left: 3px; }
+.title-slide .ambient-toggle:hover { background: #ffffff14; color: white; }
+.on-title .deck-navigation { background: #0b1019e8; }
+.on-title .deck-navigation .icon-button { color: #aebed3; }
+.on-title .deck-navigation .icon-button:hover { color: white; background: #ffffff14; }
+.on-title .slide-number { color: #aebed3; }
 .slide-heading { margin-bottom: 30px; flex: 0 0 auto; }
 .reveal h2 { font-size: 40px; line-height: 1.15; font-weight: 550; }
 .measure-layout { display: grid; grid-template-columns: 1.07fr 1fr; gap: 54px; flex: 1; min-height: 0; }
@@ -140,6 +151,22 @@ input[type=range]::-moz-range-thumb { width: 10px; height: 10px; border: 2px sol
 #index-contents button { text-align: left; border: 0; border-radius: 4px; background: white; padding: 10px; cursor: pointer; font-size: 15px; line-height: 1.4; }
 #index-contents button:hover { color: var(--blue); background: #f0f4fa; }
 
+.roadmap-heading { flex: none; }
+.roadmap-topline { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.roadmap-topline p { font-size: 18px; color: #168574; }
+.roadmap-question { font-size: 23px; color: #53616e; margin-top: 18px !important; }
+.roadmap-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; margin: auto 0; padding: 35px 0; }
+.roadmap-item { min-width: 0; opacity: .26; border-top: 2px solid #b4c0cb; padding-top: 18px; transition: opacity .3s ease; }
+.roadmap-item.is-current { opacity: 1; border-color: #168574; }
+.roadmap-item:hover { color: inherit; }
+.roadmap-item:focus-visible { opacity: .65; color: inherit; }
+.roadmap-item.is-current:focus-visible { opacity: 1; }
+.roadmap-number { font-size: 22px; color: #168574; font-variant-numeric: tabular-nums; }
+.reveal .roadmap-grid h3 { font-size: 26px; line-height: 1.2; margin: 16px 0 8px; font-weight: 500; }
+.roadmap-grid canvas { display: block; width: 100%; aspect-ratio: 1.15; }
+.roadmap-grid p { font-size: 18px; line-height: 1.4; min-height: 32px; margin-top: 14px; }
+.roadmap-status { position: absolute; bottom: 40px; font-size: 16px; color: #697887; }
+
 @media (min-width: 1600px) {
   .reveal .slides > section { padding-left: max(64px, calc((100% - 1580px) / 2)); padding-right: max(64px, calc((100% - 1580px) / 2)); padding-top: 55px; padding-bottom: 80px; }
   .measure-layout { max-height: 690px; margin-top: 10px; }
@@ -203,6 +230,12 @@ input[type=range]::-moz-range-thumb { width: 10px; height: 10px; border: 2px sol
   .wide-experiment .talk-track > p:not(.qualification) { font-size: 20px; }
   .wide-experiment .demo-plot { height: 510px; flex: none; }
   .wide-experiment .demo-control { max-width: none; }
+  .title-slide .title-content { max-width: 100%; }
+  .roadmap-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 28px; padding: 24px 0 0; margin: 0; }
+  .roadmap-grid canvas { aspect-ratio: 1.45; }
+  .reveal .roadmap-grid h3 { font-size: 24px; }
+  .roadmap-grid p { min-height: 44px; font-size: 17px; margin-top: 4px; }
+  .roadmap-question { font-size: 20px; margin-top: 12px !important; }
 }
 @media (max-width: 520px) {
   .reveal .slides > section { padding: 26px 21px 76px; }
@@ -234,6 +267,24 @@ input[type=range]::-moz-range-thumb { width: 10px; height: 10px; border: 2px sol
   .demo-plot { height: 360px; }
   .demo-readout { font-size: 16px; }
   .source-reference { max-width: 100%; }
+  .roadmap-grid { gap: 18px; }
+  .roadmap-item { padding-top: 9px; }
+  .reveal .roadmap-grid h3 { font-size: 20px; margin: 9px 0 5px; }
+  .roadmap-number { font-size: 18px; }
+  .roadmap-topline { margin-bottom: 8px; }
+  .roadmap-topline p { font-size: 16px; }
+  .roadmap-question { font-size: 18px; }
+}
+@media (max-width: 900px) and (orientation: landscape) {
+  .title-slide .title-content { max-width: 57%; margin: 0; }
+  .title-slide h1 { font-size: 36px; }
+  .title-slide .venue { margin-bottom: 12px !important; }
+  .title-slide .author { font-size: 20px; margin-top: 16px; }
+  .title-slide .affiliation { font-size: 14px; }
+  .title-slide .title-links { margin-top: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .roadmap-item { transition: none; }
 }
 @media print {
   .deck-navigation, .experiment-controls, .title-links { display: none; }

@@ -1,7 +1,7 @@
 # Interactive lecture
 
-A 31-slide Reveal.js lecture on **Muon Dynamics as a Spectral Wasserstein
-Flow**, with 29 interactive numerical illustrations, locally bundled KaTeX,
+A 35-slide, four-part Reveal.js lecture on **Muon Dynamics as a Spectral Wasserstein
+Flow**, with 29 interactive numerical illustrations and four animated roadmaps, locally bundled KaTeX,
 Canvas graphics and D3 contours. No external font, CDN or Python service is
 needed to view the deployed deck.
 
@@ -18,19 +18,32 @@ Individual slides have stable links, for example
 The storyboard records the alternatives considered before implementation,
 the teaching objective of each slide, and mathematical safeguards.
 
-1. **Algorithm to geometry:** practical Muon, removing momentum, the small-step
-   limit, the state-dependent clock change, norm steepest descent, and Schatten
-   exponents.
-2. **Particles to measures to transport:** empirical scaling, the finite
-   measure-LMO, MMD and quadratic flows, static and robust transport, exact
-   mass splitting, the Benamou-Brenier formula, geodesics, and Gaussian
-   transport with both commuting and rotated covariances.
-3. **Applications and consequences:** conditional gradient-flow identification,
-   ReLU training, attention heads, Gaussian linear networks, block gauges,
-   failure of geodesic convexity, P-L and Poincare inequalities, and the
-   contrast between Gaussian and non-Gaussian targets.
-4. **Extensions and limits:** root-norm gauges, finite Newton-Schulz iterations,
-   and noise before normalization.
+1. **[From Muon to measures](https://www.gpeyre.com/muon-dynamics/#/part-1)**
+   (slides 2-12): measure optimization, practical Muon, small momentum and step
+   limits, the clock change, Schatten descent, empirical scaling, the finite
+   measure-LMO, and MMD/quadratic flows.
+2. **[Spectral transport](https://www.gpeyre.com/muon-dynamics/#/part-2)**
+   (slides 13-20): static and robust transport, exact mass splitting,
+   Benamou-Brenier, geodesics, and Gaussian covariance transport.
+3. **[Learning dynamics](https://www.gpeyre.com/muon-dynamics/#/part-3)**
+   (slides 21-26): conditional gradient-flow identification, ReLU training,
+   attention heads, Gaussian linear networks, and block gauges.
+4. **[Convergence and limits](https://www.gpeyre.com/muon-dynamics/#/part-4)**
+   (slides 27-35): geodesic convexity, P-L, Gaussian and radial Poincare
+   comparisons, root-norm gauges, finite Newton-Schulz, and stochastic forces.
+
+Each part opens with the same four-preview roadmap. The current part is fully
+opaque, with the other three at 26% opacity. Its previews show a varying
+Schatten norm ball, optimal joint-Gaussian interpolation, a saved ReLU fit,
+and theoretical P-L envelopes. Each preview links to its part's roadmap.
+The title uses a dark, full-bleed canvas with luminous particle heads and
+short trails from the saved 256-particle W2 experiment. Blue contours show
+the analytic target. No new simulation is needed for these animations.
+
+Forward replays fade before restarting, rather than running the dynamics
+backwards. The title loops every 20 seconds; roadmap loops take 14-18 seconds.
+Only the visible slide animates. Pause/play buttons and the space key control
+ambient playback, and reduced-motion preferences pause it by default.
 
 Allow approximately 50-65 minutes with demonstrations. Technical slides can
 be skipped using the slide index. Each slide includes source pointers and
@@ -57,7 +70,7 @@ animate the experiments; reset returns time to zero, and space toggles
 playback when available. Full screen
 and Reveal.js speaker notes (`S`) are available. On narrow screens, slides
 scroll vertically without shrinking the entire lecture to an unreadable size.
-The index groups the lecture into seven parts. Major numerical experiments use
+The index groups the lecture into four parts. Major numerical experiments use
 full-width layouts. At 1280-by-720, main prose is at least 22 pixels and display
 equations at least 23 pixels; chart labels are at least 14 pixels. Essential
 qualifications remain on screen, with longer arguments in speaker notes.
@@ -204,6 +217,7 @@ source files are not included in the publication artifact.
 - `src/demos.js`: interactive charts and per-slide playback.
 - `src/lecture-math.js`: pure mathematical functions, independently tested.
 - `src/main.js`: navigation, mathematical rendering, loading and animation.
+- `src/ambient.js`: looping title scene and the four roadmap previews.
 - `src/plot.js`, `src/experiment.js`: opening particle experiment.
 - `scripts/`: reproducible dataset generators.
 

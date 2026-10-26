@@ -6,6 +6,7 @@ import { colorAt, interpolate, validateDataset } from './experiment.js';
 import { ParticlePlot } from './plot.js';
 import { appendTeachingSlides, teachingSlides, lectureParts } from './content.js';
 import { Demo } from './demos.js';
+import { CoverScene, RoadmapPreview } from './ambient.js';
 import './style.css';
 
 const icons = { ArrowUpRight, ChevronLeft, ChevronRight, Maximize, Minimize, Play, Pause, RotateCcw, Route, List, X };
@@ -13,6 +14,10 @@ const $ = id => document.getElementById(id);
 const refreshIcons = () => createIcons({ icons });
 appendTeachingSlides();
 const demos = new Map();
+const previews = new Map();
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+let ambientPaused = reducedMotion.matches;
+let ambientClock = 2;
 for (const element of document.querySelectorAll('[data-math]')) {
   katex.render(element.dataset.math, element, { throwOnError: true, output: 'htmlAndMathml' });
 }
@@ -24,7 +29,8 @@ const deck = new Reveal({
   touch: false, overview: false, scrollActivationWidth: null, plugins: [Notes],
   keyboardCondition: event => !event.target.closest('input, button, a, select'),
   keyboard: { 32: () => {
-    if (deck.getIndices().h === 1) togglePlayback();
+    if (deck.getCurrentSlide().id === 'measures') togglePlayback();
+    else if (deck.getCurrentSlide().matches('.title-slide, .roadmap-slide')) toggleAmbient();
     else if (demos.get(deck.getCurrentSlide().id)?.playButton) demos.get(deck.getCurrentSlide().id).togglePlay();
     else deck.next();
   } },
@@ -69,8 +75,25 @@ let playing = false;
 let countIndex = 3;
 let time = 0;
 let lastFrame = null;
-let coverClock = 0;
-const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+function refreshAmbientButtons() {
+  document.querySelectorAll('.ambient-toggle').forEach(button => {
+    button.setAttribute('aria-label', ambientPaused ? 'Play animations' : 'Pause animations');
+    button.title = ambientPaused ? 'Play animations' : 'Pause animations';
+    button.innerHTML = `<i data-lucide="${ambientPaused ? 'play' : 'pause'}"></i>`;
+  });
+  refreshIcons();
+}
+function toggleAmbient() { ambientPaused = !ambientPaused; refreshAmbientButtons(); }
+document.querySelectorAll('.ambient-toggle').forEach(button => button.addEventListener('click', toggleAmbient));
+reducedMotion.addEventListener('change', event => { ambientPaused = event.matches; refreshAmbientButtons(); });
+refreshAmbientButtons();
+
+function drawAmbient() {
+  const id = deck.getCurrentSlide().id;
+  if (id === 'title') cover?.draw(ambientClock);
+  else previews.get(id)?.forEach(preview => preview.draw(ambientClock));
+}
 
 function updateNavigation() {
   const index = deck.getIndices().h;
@@ -78,9 +101,10 @@ function updateNavigation() {
   $('slide-number').textContent = `${String(index + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
   $('previous-slide').disabled = index === 0;
   $('next-slide').disabled = index === total - 1;
-  if (index !== 1) setPlaying(false);
+  document.body.classList.toggle('on-title', deck.getCurrentSlide().id === 'title');
+  if (deck.getCurrentSlide().id !== 'measures') setPlaying(false);
   for (const [id, demo] of demos) if (id !== deck.getCurrentSlide().id && demo.playing) demo.setPlaying(false);
-  requestAnimationFrame(() => { plot?.draw(); cover?.draw(); demos.get(deck.getCurrentSlide().id)?.draw(); fitEquations(); });
+  requestAnimationFrame(() => { plot?.draw(); drawAmbient(); demos.get(deck.getCurrentSlide().id)?.draw(); fitEquations(); });
 }
 
 function setPlaying(value) {
@@ -158,7 +182,8 @@ try {
   if (!response.ok) throw new Error(`Experiment download failed (${response.status})`);
   dataset = validateDataset(await response.json());
   plot = new ParticlePlot($('particle-canvas'), dataset);
-  cover = new ParticlePlot($('cover-canvas'), dataset, { cover: true });
+  cover = new CoverScene($('cover-canvas'), dataset);
+  drawAmbient();
   $('time-slider').max = dataset.horizon;
   $('load-status').hidden = true;
   for (const control of document.querySelectorAll('.experiment-controls input, .experiment-controls button')) control.disabled = false;
@@ -184,10 +209,16 @@ try {
   for (const definition of teachingSlides.filter(slide => slide.demo)) {
     demos.set(definition.id, new Demo($(definition.id), definition, data, refreshIcons));
   }
+  for (const section of document.querySelectorAll('.slides > section.roadmap-slide')) {
+    previews.set(section.id, [...section.querySelectorAll('canvas')].map(canvas => new RoadmapPreview(canvas, data)));
+    section.querySelector('.roadmap-status').hidden = true;
+  }
+  drawAmbient();
   document.body.dataset.lectureReady = 'true';
   fitEquations();
 } catch (error) {
   document.querySelectorAll('.demo-status').forEach(element => { element.textContent = 'The experiment could not be loaded. Reload to retry.'; element.setAttribute('role', 'alert'); });
+  document.querySelectorAll('.roadmap-status').forEach(element => { element.textContent = 'The previews could not be loaded. Reload to retry.'; element.setAttribute('role', 'alert'); });
   console.error(error);
 }
 
@@ -195,16 +226,15 @@ function animate(now) {
   const elapsed = lastFrame === null ? 0 : Math.min((now - lastFrame) / 1000, .1);
   lastFrame = now;
   if (!document.hidden) demos.get(deck.getCurrentSlide().id)?.tick(elapsed);
+  if (!document.hidden && !ambientPaused && deck.getCurrentSlide().matches('.title-slide, .roadmap-slide')) {
+    ambientClock += elapsed;
+    drawAmbient();
+  }
   if (dataset && !document.hidden) {
-    if (playing && deck.getIndices().h === 1) {
+    if (playing && deck.getCurrentSlide().id === 'measures') {
       time = Math.min(dataset.horizon, time + elapsed * 1.6);
       if (time === dataset.horizon) setPlaying(false);
       updateExperiment();
-    } else if (deck.getIndices().h === 0) {
-      coverClock += elapsed;
-      const phase = reducedMotion.matches ? .72 : (coverClock % 18) / 14;
-      const nextTime = Math.min(phase, 1) * dataset.horizon;
-      if (cover.time !== nextTime) cover.set(dataset.experiments[4], nextTime);
     }
   }
   requestAnimationFrame(animate);

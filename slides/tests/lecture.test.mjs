@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { teachingSlides } from '../src/content.js';
+import { teachingSlides, talkParts, lectureParts } from '../src/content.js';
+import { loopState } from '../src/ambient.js';
 import { FLOW_BOUNDS, FIELD_BOUNDS, powerNorm, diagonalLMO, eigen2, clockState, memoryResponse, gaussianQuotient,
   nsResponse, noiseResponse, bentAction, rectangleKL } from '../src/lecture-math.js';
 import { splittingCoupling, splittingCost, gaussianCovariance, radialTest, momentGauge } from '../src/lecture-math.js';
@@ -11,13 +12,34 @@ const networks = JSON.parse(await readFile(new URL('../public/data/networks.json
 const extensions = JSON.parse(await readFile(new URL('../public/data/extensions.json', import.meta.url)));
 const close = (a, b, tolerance = 1e-8) => assert.ok(Math.abs(a - b) < tolerance, `${a} != ${b}`);
 
-test('the 31-slide narrative has unique links, sources and speaker notes', () => {
+test('the 35-slide narrative retains its content and has exactly four parts', () => {
   assert.equal(teachingSlides.length, 29);
   assert.equal(new Set(teachingSlides.map(slide => slide.id)).size, 29);
   assert.equal(teachingSlides.filter(slide => slide.demo).length, 28);
+  assert.equal(teachingSlides.length + 2 + talkParts.length, 35);
+  assert.equal(talkParts.length, 4);
+  assert.equal(lectureParts.size, 4);
+  assert.deepEqual(talkParts.map(p => p.start), ['measures', 'static', 'gradient-flow', 'convexity']);
   for (const slide of teachingSlides) {
     assert.ok(slide.source.length > 10);
     assert.ok(slide.notes.length > 100);
+  }
+});
+
+test('ambient loops replay forward, fade at the seam, and are exactly periodic', () => {
+  for (const duration of [16, 18, 20]) {
+    let previous = 0;
+    for (let i = 0; i < 1000; i += 1) {
+      const t = duration * i / 1000, state = loopState(t, duration), repeated = loopState(t + duration, duration);
+      assert.ok(state.progress >= previous && state.progress >= 0 && state.progress <= 1);
+      assert.ok(state.opacity >= 0 && state.opacity <= 1);
+      close(state.progress, repeated.progress); close(state.opacity, repeated.opacity);
+      previous = state.progress;
+    }
+    assert.equal(loopState(0, duration).opacity, 0);
+    assert.equal(loopState(duration, duration).opacity, 0);
+    assert.ok(loopState(duration - .0001, duration).opacity < 1e-6);
+    assert.equal(loopState(duration * .5, duration).opacity, 1);
   }
 });
 

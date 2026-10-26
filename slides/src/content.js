@@ -320,11 +320,18 @@ export const teachingSlides = [
   },
 ];
 
-export const lectureParts = new Map([
-  ['title', 'The question'], ['muon', '1. Matrix descent'], ['particles', '2. Particles and measures'],
-  ['static', '3. Transport geometry'], ['gradient-flow', '4. Learning'], ['convexity', '5. Convergence'],
-  ['root-norm', '6. Extensions'],
-]);
+export const talkParts = [
+  { id: 'part-1', start: 'measures', title: 'From Muon to measures', lines: ['From Muon', 'to measures'],
+    caption: 'Directions and clocks', question: 'How does matrix normalization move a distribution?' },
+  { id: 'part-2', start: 'static', title: 'Spectral transport', lines: ['Spectral', 'transport'],
+    caption: 'Couplings and geodesics', question: 'What does transport cost in this geometry?' },
+  { id: 'part-3', start: 'gradient-flow', title: 'Learning dynamics', lines: ['Learning', 'dynamics'],
+    caption: 'Neurons and attention heads', question: 'What changes when the particles are neurons?' },
+  { id: 'part-4', start: 'convexity', title: 'Convergence and limits', lines: ['Convergence', 'and limits'],
+    caption: 'Rates and extensions', question: 'What can this geometry guarantee?' },
+];
+
+export const lectureParts = new Map(talkParts.map((part, i) => [part.id, `${i + 1}. ${part.title}`]));
 
 export function appendTeachingSlides() {
   const container = document.querySelector('.reveal > .slides');
@@ -341,5 +348,31 @@ export function appendTeachingSlides() {
         <p class="demo-status" role="status">Loading experiment...</p></div>` : ''}</div>
       <footer class="source-reference">${slide.source}</footer><aside class="notes">${slide.notes}</aside>`;
     container.append(section);
+  }
+  for (const [index, part] of talkParts.entries()) {
+    const section = document.createElement('section');
+    section.id = part.id;
+    section.className = 'roadmap-slide';
+    section.dataset.part = index + 1;
+    section.setAttribute('aria-label', `Part ${index + 1}: ${part.title}`);
+    section.innerHTML = `<header class="roadmap-heading">
+      <div class="roadmap-topline"><p>Part ${String(index + 1).padStart(2, '0')} of 04</p>
+        <button class="icon-button ambient-toggle" aria-label="Pause animations" title="Pause animations"><i data-lucide="pause"></i></button></div>
+      <h2>${part.title}</h2><p class="roadmap-question">${part.question}</p></header>
+      <nav class="roadmap-grid" aria-label="Four-part roadmap">${talkParts.map((preview, i) => `
+        <a class="roadmap-item${i === index ? ' is-current' : ''}" href="#/${preview.id}" ${i === index ? 'aria-current="step"' : ''} aria-label="Part ${i + 1}: ${preview.title}">
+          <span class="roadmap-number">${String(i + 1).padStart(2, '0')}</span>
+          <h3>${preview.lines.join('<br>')}</h3>
+          <canvas data-preview="${i}" role="img" aria-label="${preview.title}: animated numerical preview"></canvas>
+          <p>${preview.caption}</p>
+        </a>`).join('')}</nav>
+      <p class="roadmap-status" role="status">Loading previews...</p>
+      <aside class="notes">Part ${index + 1} of four. All four previews repeat on every roadmap; only the current part is emphasized.
+        Preview 1 varies a Schatten norm ball and its unit-ball descent direction, not an optimization trajectory.
+        Preview 2 interpolates a numerically optimal joint Gaussian at p=infinity and a 45-degree target rotation.
+        Preview 3 replays the n=32, p=infinity ReLU teacher fit on its saved metric clock.
+        Preview 4 shows theoretical P-L envelopes exp(-2 kappa t), for kappa=1/2 and 1, not measured trajectories or a universal comparison.
+        Time-based previews fade before restarting; no reversed dynamics are claimed. Reduced-motion preferences pause the previews by default.</aside>`;
+    container.insertBefore(section, document.getElementById(part.start));
   }
 }

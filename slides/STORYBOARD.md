@@ -24,9 +24,35 @@ sources, and numerical protocols go in speaker notes, with essential caveats
 also visible. Red denotes the initial measure, blue the target, and transported
 particles interpolate from red to blue. Gray paths carry no method label.
 
+## Four parts
+
+The 31 content slides are preserved. Four roadmap transitions bring the deck
+to 35 slides, with exactly four parts:
+
+1. **From Muon to measures:** roadmap at slide 2, content at slides 3-12.
+2. **Spectral transport:** roadmap at slide 13, content at slides 14-20.
+3. **Learning dynamics:** roadmap at slide 21, content at slides 22-26.
+4. **Convergence and limits:** roadmap at slide 27, content at slides 28-35.
+
+Every transition repeats the four animated previews in the same order. Only
+the current part is opaque; the other three are faded to 26%. Clicking a
+preview jumps to its part. On phones the four columns become a two-by-two
+grid. The snippets show, respectively, norm geometry, Gaussian transport,
+ReLU training, and P-L envelopes. These are previews of the actual mathematical
+objects used later, with their qualifications retained in speaker notes.
+
+The dark title scene replays the existing 256-particle W2 example, with bright
+particle heads and short colored tails. The trajectories are not altered for
+visual effect. Forward-time replays fade out before restarting; the loops
+never reverse a descent. Pause controls and reduced-motion support apply to
+the title and all four roadmaps. No additional numerical runs are introduced.
+
 ## Slide sequence
 
-| Slide | Question and takeaway | Experiment | Paper anchor |
+The content indices below are stable teaching-item numbers, excluding the four
+roadmap transitions. The part ranges above give the displayed slide numbers.
+
+| Content item | Question and takeaway | Experiment | Paper anchor |
 | --- | --- | --- | --- |
 | 1. Title | Matrix normalization has a transport interpretation. | Animated particle flow. | Abstract |
 | 2. Optimization over measures | What are the particles? Samples, neurons, cell states. | Existing MMD flow; particle count and time. | Introduction, Section 5 |
@@ -65,8 +91,9 @@ separates normalization from a complicated energy; two-atom transport makes
 splitting tangible; rotated Gaussians distinguish a special closed form from
 the general covariance problem; radial targets contrast the Gaussian no-gap
 case with strict improvement. The attention experiment illustrates the
-parameterization only, not a training result. For a shorter talk, use slides
-1-10, 12-16, 19-20, 23 and 31, leaving the others as interactive backup.
+parameterization only, not a training result. For a shorter talk, use
+content items 1-10, 12-16, 19-20, 23 and 31, keeping the four roadmaps and
+leaving the other teaching items as interactive backup.
 
 ## Mathematical safeguards
 

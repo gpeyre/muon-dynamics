@@ -30,6 +30,8 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
     await expect(page.locator('#title')).toHaveClass(/present/);
     await page.screenshot({ path: testInfo.outputPath('title.png') });
     await page.locator('#next-slide').click();
+    await expect(page.locator('#part-1')).toHaveClass(/present/);
+    await page.locator('#next-slide').click();
     await expect(page.locator('#measures')).toHaveClass(/present/);
     await expect(page.locator('#time-slider')).toBeEnabled();
     await page.waitForTimeout(800);
@@ -93,7 +95,8 @@ test('particle count, scrubbing, playback, reset and trajectories work independe
   await page.locator('#restart').click();
   await expect(page.locator('#time-value')).toHaveText('0.00');
   await page.locator('#previous-slide').click();
-  await expect(page.locator('#slide-number')).toHaveText('01 / 31');
+  await expect(page.locator('#slide-number')).toHaveText('02 / 35');
+  await expect(page.locator('#part-1')).toHaveClass(/present/);
 });
 
 test('failed data downloads leave an accessible error and disabled controls', async ({ page }) => {

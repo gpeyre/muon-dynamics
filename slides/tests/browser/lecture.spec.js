@@ -10,9 +10,9 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
     await page.goto('/');
     await expect(page.locator('body')).toHaveAttribute('data-lecture-ready', 'true');
     await page.evaluate(() => document.fonts.ready);
-    for (const [i, slide] of teachingSlides.entries()) {
+    for (const slide of teachingSlides) {
       await page.locator('#open-index').click();
-      await page.locator('#index-contents button').nth(i + 2).click();
+      await page.locator(`#index-contents [data-slide="${slide.id}"]`).click();
       const section = page.locator(`#${slide.id}`);
       await expect(section).toHaveClass(/present/);
       await page.waitForTimeout(800);
@@ -85,10 +85,10 @@ test('every lecture slider accepts its full range and illustrations stay finite'
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('/#/muon');
   await expect(page.locator('body')).toHaveAttribute('data-lecture-ready', 'true');
-  for (const [i, slide] of teachingSlides.entries()) {
+  for (const slide of teachingSlides) {
     if (!slide.demo) continue;
     await page.locator('#open-index').click();
-    await page.locator('#index-contents button').nth(i + 2).click();
+    await page.locator(`#index-contents [data-slide="${slide.id}"]`).click();
     const section = page.locator(`#${slide.id}`);
     await expect(section).toHaveClass(/present/);
     for (const control of slide.controls) {
