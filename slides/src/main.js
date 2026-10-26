@@ -4,7 +4,7 @@ import katex from 'katex';
 import { createIcons, ArrowUpRight, ChevronLeft, ChevronRight, Maximize, Minimize, Play, Pause, RotateCcw, Route, List, X } from 'lucide';
 import { colorAt, interpolate, validateDataset } from './experiment.js';
 import { ParticlePlot } from './plot.js';
-import { appendTeachingSlides, teachingSlides } from './content.js';
+import { appendTeachingSlides, teachingSlides, lectureParts } from './content.js';
 import { Demo } from './demos.js';
 import './style.css';
 
@@ -32,7 +32,12 @@ const deck = new Reveal({
 
 const sections = [...document.querySelectorAll('.slides > section')];
 sections.forEach((section, i) => {
+  if (lectureParts.has(section.id)) {
+    const title = document.createElement('h3');
+    title.textContent = lectureParts.get(section.id); $('index-contents').append(title);
+  }
   const button = document.createElement('button');
+  button.dataset.slide = section.id;
   const heading = section.querySelector('h1,h2').cloneNode(true);
   heading.querySelectorAll('br').forEach(br => br.replaceWith(' '));
   button.textContent = `${String(i + 1).padStart(2, '0')}  ${heading.textContent}`;
@@ -49,7 +54,8 @@ function fitEquations() {
     const rendered = element.querySelector('.katex');
     if (rendered && rendered.getBoundingClientRect().width > element.clientWidth) {
       const size = parseFloat(getComputedStyle(element).fontSize);
-      element.style.fontSize = `${Math.max(14, size * element.clientWidth / rendered.getBoundingClientRect().width * .98)}px`;
+      const minimum = window.innerWidth <= 900 ? 18 : 23;
+      element.style.fontSize = `${Math.max(minimum, size * element.clientWidth / rendered.getBoundingClientRect().width * .98)}px`;
     }
   }
 }
@@ -172,6 +178,9 @@ try {
   const networks = await fetch(`${import.meta.env.BASE_URL}data/networks.json`);
   if (!networks.ok) throw new Error(`Network examples download failed (${networks.status})`);
   data.networks = await networks.json();
+  const extensions = await fetch(`${import.meta.env.BASE_URL}data/extensions.json`);
+  if (!extensions.ok) throw new Error(`Extended experiments download failed (${extensions.status})`);
+  data.extensions = await extensions.json();
   for (const definition of teachingSlides.filter(slide => slide.demo)) {
     demos.set(definition.id, new Demo($(definition.id), definition, data, refreshIcons));
   }

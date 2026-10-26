@@ -24,7 +24,7 @@ a:hover { color: var(--blue); }
 .reveal { font-size: 20px; line-height: 1.4; height: 100svh; }
 .reveal .slides { inset: 0; width: 100%; height: 100%; text-align: left; }
 .reveal .slides > section {
-  width: 100%; height: 100%; padding: 48px 64px 66px;
+  width: 100%; height: 100%; padding: 40px 52px 62px;
   overflow: auto; text-align: left;
 }
 .reveal .slides > section.present { display: flex !important; flex-direction: column; }
@@ -42,7 +42,7 @@ a:hover { color: var(--blue); }
 .title-links a { display: inline-flex; align-items: center; gap: 5px; min-height: 32px; }
 .title-links svg { width: 16px; height: 16px; }
 .slide-heading { margin-bottom: 30px; flex: 0 0 auto; }
-.reveal h2 { font-size: 39px; line-height: 1.15; font-weight: 500; }
+.reveal h2 { font-size: 40px; line-height: 1.15; font-weight: 550; }
 .measure-layout { display: grid; grid-template-columns: 1.07fr 1fr; gap: 54px; flex: 1; min-height: 0; }
 .mathematics { padding-top: 6px; min-width: 0; }
 .objective { font-size: 35px; margin-bottom: 13px; }
@@ -51,7 +51,7 @@ a:hover { color: var(--blue); }
 .example { border-left: 2px solid var(--hairline); padding-left: 20px; }
 .reveal h3 { font-size: 21px; font-weight: 600; margin-bottom: 5px; }
 .example-equation { font-size: 21px; margin-bottom: 7px; }
-.example p { font-size: 15px; color: #65707a; line-height: 1.55; }
+.example p { font-size: 18px; color: #53606c; line-height: 1.45; }
 .example p .katex { font-size: 1.1em; }
 .separator { margin: 0 4px; color: #929aa3; }
 .reference { color: #708192; font-size: 11px; vertical-align: super; padding-left: 3px; }
@@ -94,30 +94,40 @@ input[type=range]::-moz-range-thumb { width: 10px; height: 10px; border: 2px sol
 .katex { font-size: 1.06em; }
 .reveal .slide-background { background: white; }
 
-.teaching-layout { display: grid; grid-template-columns: 1fr 1.08fr; gap: 45px; flex: 1; min-height: 0; }
-.talk-track { min-width: 0; display: flex; flex-direction: column; gap: 18px; justify-content: center; }
-.talk-track > p { font-size: 20px; line-height: 1.5; }
-.equation { font-size: 27px; line-height: 1.6; min-width: 0; }
-.equation.small { font-size: 23px; }
-.equation.tiny { font-size: 20px; }
-.talk-track > .qualification { font-size: 15px; line-height: 1.55; color: #697584; margin-top: 6px; }
+.teaching-layout { display: grid; grid-template-columns: 1fr 1.08fr; gap: 38px; flex: 1; min-height: 0; }
+.talk-track { min-width: 0; display: flex; flex-direction: column; gap: 20px; justify-content: center; }
+.talk-track > p { font-size: 23px; line-height: 1.4; }
+.equation { font-size: 29px; line-height: 1.45; min-width: 0; }
+.equation.small, .equation.tiny { font-size: 26px; }
+.talk-track > .qualification { font-size: 17px; line-height: 1.45; color: #53616e; margin-top: 4px; }
 .demo-panel { display: flex; flex-direction: column; min-width: 0; min-height: 0; position: relative; }
-.demo-readout { font-size: 14px; color: #657385; min-height: 40px; line-height: 1.5; padding-bottom: 5px; }
+.demo-readout { display: flex; flex-wrap: wrap; gap: 3px 22px; align-content: start; font-size: 16px; color: #425365; min-height: 44px; line-height: 1.4; padding-bottom: 6px; }
+.demo-readout span { display: inline-block; }
 .demo-plot { flex: 1; position: relative; min-height: 320px; }
 .demo-plot canvas { display: block; width: 100%; height: 100%; }
-.demo-controls { display: flex; align-items: center; gap: 18px; border-top: 1px solid var(--hairline); padding: 15px 0 5px; min-height: 75px; }
+.demo-controls { display: flex; align-items: center; gap: 22px; border-top: 1px solid var(--hairline); padding: 13px 0 4px; min-height: 78px; }
 .demo-control { flex: 1; min-width: 0; }
-.demo-control label { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 16px; min-height: 26px; }
-.demo-control output { color: #5c6977; font-size: 13px; white-space: nowrap; }
+.demo-control label { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 19px; min-height: 29px; }
+.demo-control output { color: #425365; font-size: 16px; white-space: nowrap; }
+.demo-actions { display: flex; gap: 3px; align-self: end; padding-bottom: 1px; }
 .demo-control input { width: 100%; }
 .demo-status { position: absolute; top: 40%; left: 0; width: 100%; text-align: center; font-size: 15px; color: var(--muted); }
-.source-reference { font-size: 12px; color: #87919e; margin-top: 16px; flex: none; }
+.source-reference { font-size: 13px; color: #697887; margin-top: 14px; flex: none; }
+.wide-experiment .teaching-layout { display: flex; flex-direction: column; gap: 14px; }
+.wide-experiment .talk-track { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 32px; flex: none; align-items: center; }
+.wide-experiment .talk-track > .qualification { grid-column: 1 / -1; margin: 0; }
+.wide-experiment .talk-track > p:not(.qualification) { font-size: 22px; }
+.wide-experiment .demo-panel { flex: 1; }
+.wide-experiment .demo-readout { min-height: 32px; }
+.wide-experiment .demo-plot { min-height: 220px; }
+.wide-experiment .demo-control { max-width: 270px; }
+.wide-experiment .demo-actions { margin-left: auto; }
 .closing-slide .teaching-layout { display: block; }
 .closing-slide .talk-track { max-width: 1050px; height: 100%; margin: 0 auto; gap: 28px; }
 .summary-row { display: grid; grid-template-columns: 230px 1fr; gap: 4px 30px; align-items: baseline; }
 .summary-row h3 { font-size: 21px; }
-.summary-row p { grid-column: 2; font-size: 17px; color: var(--muted); }
-.summary-row .equation { font-size: 23px; }
+.summary-row p { grid-column: 2; font-size: 20px; color: #53616e; }
+.summary-row .equation { font-size: 26px; }
 .closing-links { display: flex; gap: 35px; font-size: 17px; color: #536176; }
 .closing-links a { display: inline-flex; gap: 6px; align-items: center; }
 .closing-links svg { width: 16px; height: 16px; }
@@ -126,36 +136,36 @@ input[type=range]::-moz-range-thumb { width: 10px; height: 10px; border: 2px sol
 #slide-index header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 #slide-index h2 { margin: 0; font-size: 24px; font-weight: 500; }
 #index-contents { display: flex; flex-direction: column; gap: 3px; }
+#index-contents h3 { font-size: 15px; color: #168574; margin: 19px 10px 5px; font-weight: 600; }
 #index-contents button { text-align: left; border: 0; border-radius: 4px; background: white; padding: 10px; cursor: pointer; font-size: 15px; line-height: 1.4; }
 #index-contents button:hover { color: var(--blue); background: #f0f4fa; }
 
 @media (min-width: 1600px) {
-  .reveal .slides > section { padding-left: max(64px, calc((100% - 1420px) / 2)); padding-right: max(64px, calc((100% - 1420px) / 2)); padding-top: 65px; padding-bottom: 95px; }
+  .reveal .slides > section { padding-left: max(64px, calc((100% - 1580px) / 2)); padding-right: max(64px, calc((100% - 1580px) / 2)); padding-top: 55px; padding-bottom: 80px; }
   .measure-layout { max-height: 690px; margin-top: 10px; }
   .examples { gap: 35px; }
   .empirical { margin-bottom: 42px; }
 }
 @media (max-height: 760px) and (min-width: 901px) {
-  .reveal .slides > section { padding: 32px 48px 56px; }
-  .slide-heading { margin-bottom: 20px; }
-  .reveal h2 { font-size: 34px; }
+  .reveal .slides > section { padding: 26px 40px 54px; }
+  .slide-heading { margin-bottom: 18px; }
+  .reveal h2 { font-size: 36px; }
   .objective { font-size: 30px; margin-bottom: 8px; }
   .empirical { font-size: 25px; margin-bottom: 20px; }
   .examples { gap: 20px; }
   .reveal h3 { font-size: 19px; }
   .example-equation { font-size: 19px; }
-  .example p { font-size: 14px; }
+  .example p { font-size: 17px; }
   .plot-area { min-height: 250px; }
   .reveal h1 { font-size: 62px; }
-  .talk-track { gap: 12px; }
-  .talk-track > p { font-size: 18px; }
-  .talk-track > .qualification { font-size: 13px; }
-  .equation { font-size: 24px; }
-  .equation.small { font-size: 21px; }
-  .equation.tiny { font-size: 18px; }
+  .talk-track { gap: 15px; }
+  .talk-track > p { font-size: 22px; }
+  .talk-track > .qualification { font-size: 16px; }
+  .equation { font-size: 27px; }
+  .equation.small, .equation.tiny { font-size: 24px; }
   .demo-plot { min-height: 260px; }
-  .demo-readout { font-size: 12px; min-height: 36px; }
-  .source-reference { margin-top: 8px; font-size: 11px; }
+  .demo-readout { font-size: 16px; min-height: 42px; }
+  .source-reference { margin-top: 8px; font-size: 12px; }
   .closing-slide .talk-track { gap: 22px; }
 }
 @media (max-width: 1100px) and (min-width: 901px) {
@@ -181,14 +191,18 @@ input[type=range]::-moz-range-thumb { width: 10px; height: 10px; border: 2px sol
   .deck-navigation { right: 14px; bottom: 10px; }
   .teaching-layout { display: flex; flex-direction: column; flex: none; gap: 35px; }
   .talk-track { gap: 17px; }
-  .talk-track > p { font-size: 18px; }
-  .talk-track > .qualification { font-size: 14px; }
+  .talk-track > p { font-size: 20px; }
+  .talk-track > .qualification { font-size: 16px; }
   .demo-panel { min-height: 490px; }
   .demo-plot { height: 390px; flex: none; }
   .source-reference { font-size: 11px; margin-top: 25px; }
   .closing-slide .talk-track { gap: 28px; }
   .summary-row { display: block; }
   .summary-row p { margin-top: 8px; }
+  .wide-experiment .talk-track { display: flex; align-items: stretch; gap: 17px; }
+  .wide-experiment .talk-track > p:not(.qualification) { font-size: 20px; }
+  .wide-experiment .demo-plot { height: 510px; flex: none; }
+  .wide-experiment .demo-control { max-width: none; }
 }
 @media (max-width: 520px) {
   .reveal .slides > section { padding: 26px 21px 76px; }
@@ -203,7 +217,7 @@ input[type=range]::-moz-range-thumb { width: 10px; height: 10px; border: 2px sol
   .reveal h3 { font-size: 19px; }
   .example { padding-left: 13px; }
   .example-equation { font-size: 17px; }
-  .example p { font-size: 14px; }
+  .example p { font-size: 17px; }
   .plot-heading { gap: 6px; }
   .legend { gap: 15px; font-size: 15px; }
   .energy-readout { gap: 6px; font-size: 12px; }
@@ -211,14 +225,14 @@ input[type=range]::-moz-range-thumb { width: 10px; height: 10px; border: 2px sol
   .playback-buttons { grid-column: 1 / -1; justify-content: center; }
   .plot-area { height: 310px; }
   input[type=range] { height: 32px; }
-  .talk-track > p { font-size: 17px; }
+  .talk-track > p { font-size: 18px; }
   .equation { font-size: 23px; }
   .equation.small { font-size: 20px; }
   .equation.tiny { font-size: 18px; }
   .demo-controls { gap: 10px; flex-wrap: wrap; }
   .demo-control { min-width: 75px; }
   .demo-plot { height: 360px; }
-  .demo-readout { font-size: 12px; }
+  .demo-readout { font-size: 16px; }
   .source-reference { max-width: 100%; }
 }
 @media print {

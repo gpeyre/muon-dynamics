@@ -120,3 +120,26 @@ export function rectangleKL(t, L, a, reflected) {
   return -Math.log(2 * a * factor) + Math.log(2 * Math.PI)
     + .5 * ((L * t + .5) ** 2 + 1 / 12 + a * a * factor * factor / 3);
 }
+
+export function splittingCoupling(theta) {
+  return { n: 2, x: [[-1, 0], [1, 0]], y: [[0, -1], [0, 1]],
+    plan: [[theta / 2, (1 - theta) / 2], [(1 - theta) / 2, theta / 2]],
+    moment: [[1, 1 - 2 * theta], [1 - 2 * theta, 1]] };
+}
+
+export function splittingCost(theta, p) {
+  return powerNorm([2 * theta, 2 * (1 - theta)], p);
+}
+
+export function gaussianCovariance(experiment, t) {
+  return experiment.source.map((row, i) => row.map((value, j) => (1 - t) ** 2 * value
+    + t * t * experiment.target[i][j] + t * (1 - t) * (experiment.cross[i][j] + experiment.cross[j][i])));
+}
+
+export function radialTest(moments, amplitude, p) {
+  const [, m4, m6] = moments, a = amplitude, c = m4 / 2;
+  const gram = [1 + 2 * a * (4 - c) + a * a * (4.5 * m4 - 8 * c + c * c), a * a * m4 / 2];
+  const variance = 1 + a * a * (m6 - m4 * m4 / 2) / 2;
+  const q = p === Infinity ? 1 : 2 * p / (2 * p - 1);
+  return { gram, variance, quotient: powerNorm(gram.map(x => Math.sqrt(Math.max(0, x))), q) ** 2 / variance };
+}

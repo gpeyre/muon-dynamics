@@ -138,7 +138,7 @@ export class ParticlePlot {
     ctx.lineWidth = 1;
     ctx.strokeRect(left, top, width, height);
     ctx.fillStyle = '#929ba7';
-    ctx.font = '11px Helvetica, Arial, sans-serif';
+    ctx.font = '14px Helvetica, Arial, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     for (const value of [-3, -1, 1, 3]) {

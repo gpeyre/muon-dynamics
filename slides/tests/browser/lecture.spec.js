@@ -3,7 +3,7 @@ import { teachingSlides } from '../../src/content.js';
 
 for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720 }, { width: 390, height: 844 }]) {
   test(`all lecture slides and controls at ${viewport.width}x${viewport.height}`, async ({ page }, testInfo) => {
-    test.setTimeout(150000);
+    test.setTimeout(200000);
     await page.setViewportSize(viewport);
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
@@ -20,9 +20,14 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
         overflowX: element.scrollWidth > element.clientWidth + 2,
         overflowY: element.scrollHeight > element.clientHeight + 2,
         formulas: [...element.querySelectorAll('.equation')].filter(e => e.scrollWidth > e.clientWidth + 2).map(e => e.dataset.math),
+        smallestEquation: Math.min(...[...element.querySelectorAll('.equation')].map(e => parseFloat(getComputedStyle(e).fontSize))),
+        smallestBody: Math.min(...[...element.querySelectorAll('.talk-track > p:not(.qualification)')].map(e => parseFloat(getComputedStyle(e).fontSize))),
       }));
       expect(layout.overflowX, slide.id).toBe(false);
       expect(layout.formulas, slide.id).toEqual([]);
+      expect(layout.smallestEquation, slide.id).toBeGreaterThanOrEqual(viewport.width > 900 ? 23 : 18);
+      expect(layout.smallestBody, slide.id).toBeGreaterThanOrEqual(viewport.width > 900 ? 22 : 18);
+      expect((await section.locator('h2').boundingBox()).y, slide.id).toBeGreaterThanOrEqual(24);
       if (viewport.width > 900) expect(layout.overflowY, slide.id).toBe(false);
       await page.screenshot({ path: testInfo.outputPath(`${slide.id}.png`) });
       if (slide.demo) {
@@ -33,12 +38,15 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 1280, height: 720
           return count;
         });
         expect(visiblePixels, slide.id).toBeGreaterThan(500);
+        expect(Number(await canvas.getAttribute('data-caption-minimum')), slide.id).toBeGreaterThanOrEqual(14);
+        expect(JSON.parse(await canvas.getAttribute('data-caption-overflow')), slide.id).toEqual([]);
         const initial = await canvas.evaluate(c => c.toDataURL());
         const readout = await section.locator('.demo-readout').textContent();
         const input = section.locator('input').first();
         const min = await input.getAttribute('min'), max = await input.getAttribute('max');
         await input.fill(await input.inputValue() === max ? min : max);
         const changed = await canvas.evaluate(c => c.toDataURL());
+        expect(JSON.parse(await canvas.getAttribute('data-caption-overflow')), slide.id).toEqual([]);
         // Commuting Gaussian geodesics are deliberately independent of p.
         if (slide.id === 'gaussian-transport') {
           expect(changed === initial).toBe(true);
@@ -56,6 +64,11 @@ test('new slide playback pauses when leaving and deep links reload', async ({ pa
   await page.goto('/#/gaussian-network');
   await expect(page.locator('body')).toHaveAttribute('data-lecture-ready', 'true');
   const slider = page.locator('#gaussian-network-time');
+  await page.locator('#gaussian-network .demo-play').click();
+  await expect.poll(async () => Number(await slider.inputValue())).toBeGreaterThan(.05);
+  await page.locator('#gaussian-network .demo-reset').click();
+  await expect(slider).toHaveValue('0');
+  await expect(page.locator('#gaussian-network .demo-play')).toHaveAttribute('aria-label', 'Play');
   await page.locator('#gaussian-network .demo-play').click();
   await expect.poll(async () => Number(await slider.inputValue())).toBeGreaterThan(.05);
   await page.locator('#next-slide').click();
@@ -85,6 +98,7 @@ test('every lecture slider accepts its full range and illustrations stay finite'
         await slider.fill(String(value));
         expect(Number(await section.locator('canvas').getAttribute('data-revision'))).toBeGreaterThan(previous);
         expect(await section.locator('.demo-readout').textContent()).not.toMatch(/NaN|undefined/);
+        expect(JSON.parse(await section.locator('canvas').getAttribute('data-caption-overflow')), `${slide.id}: ${control.key}=${value}`).toEqual([]);
       }
     }
   }

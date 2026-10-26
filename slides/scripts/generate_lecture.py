@@ -26,7 +26,8 @@ def flows():
     original = json.loads((ROOT / "slides/public/data/measures.json").read_text())
     target = np.array(original["targetSamples"]).reshape(-1, 2)[::2]
     initial = np.array(original["experiments"][-1]["frames"][0]).reshape(-1, 2)
-    eps, horizon, steps = .03, 8.0, 400
+    eps, horizon = .03, 8.0
+    times = np.linspace(0, horizon, 101)
     constant = mean_distance(target, target, eps)
     output, fields = [], []
     for n in (16, 32, 64, 128):
@@ -36,18 +37,37 @@ def flows():
             v0 = particle_lmo(g0, p)
             fields.append(dict(n=n, p=label, x=array(x), g=array(g0), v=array(v0),
                                forceMoment=array(g0.T @ g0 / n), velocityMoment=array(v0.T @ v0 / n)))
-            frames, energies = [], []
-            for k in range(steps + 1):
-                if k % 4 == 0:
-                    frames.append(array(x.ravel()))
-                    energies.append(float(2 * mean_distance(x, target, eps) - mean_distance(x, x, eps) - constant))
-                if k < steps:
-                    x += horizon / steps * particle_lmo(mmd_force(x, target, epsilon=eps), p)
-            if not np.isfinite(x).all() or max(np.diff(energies)) > 1e-7:
+            def rhs(_t, flat):
+                cloud = flat.reshape(n, 2)
+                return particle_lmo(mmd_force(cloud, target, epsilon=eps), p).ravel()
+            solution = solve_ivp(rhs, (0, horizon), x.ravel(), t_eval=times,
+                                 rtol=2e-6, atol=2e-8, max_step=.08)
+            if not solution.success:
+                raise RuntimeError(solution.message)
+            clouds = solution.y.T.reshape(-1, n, 2)
+            frames = [array(cloud.ravel()) for cloud in clouds]
+            energies = [float(2 * mean_distance(cloud, target, eps) - mean_distance(cloud, cloud, eps) - constant)
+                        for cloud in clouds]
+            if not np.isfinite(clouds).all() or max(np.diff(energies)) > 1e-7:
                 raise RuntimeError(f"Non-descending slide experiment: n={n}, p={label}")
-            output.append(dict(count=n, p=label, frames=frames, energies=array(energies)))
-            print(f"MMD n={n}, p={label}: {energies[0]:.5f} -> {energies[-1]:.5f}", flush=True)
-    return dict(horizon=horizon, epsilon=eps, dt=horizon / steps, targetCount=len(target),
+            refinement = None
+            if n == 32 and p in (1, np.inf):
+                fine = solve_ivp(rhs, (0, horizon), x.ravel(), t_eval=times,
+                                 rtol=2e-8, atol=2e-10, max_step=.04)
+                if not fine.success:
+                    raise RuntimeError(fine.message)
+                rms = np.sqrt(np.mean((fine.y.T - solution.y.T)**2, axis=1)).max()
+                refined = fine.y[:, -1].reshape(n, 2)
+                fine_energy = 2 * mean_distance(refined, target, eps) - mean_distance(refined, refined, eps) - constant
+                error = abs(fine_energy - energies[-1]) / energies[-1]
+                if rms > .002 or error > .005:
+                    raise RuntimeError(f"MMD refinement failed: rms={rms}, relative energy={error}")
+                refinement = dict(maximumRMS=float(rms), relativeFinalEnergyError=float(error))
+            output.append(dict(count=n, p=label, frames=frames, energies=array(energies),
+                               evaluations=solution.nfev, refinement=refinement))
+            print(f"MMD n={n}, p={label}: {energies[0]:.5f} -> {energies[-1]:.5f}; {solution.nfev} force evaluations", flush=True)
+    return dict(horizon=horizon, epsilon=eps, integrator="RK45", rtol=2e-6, atol=2e-8,
+                maxStep=.08, targetCount=len(target),
                 mixture=original["mixture"], experiments=output, fields=fields)
 
 

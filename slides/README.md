@@ -1,7 +1,7 @@
 # Interactive lecture
 
-A 27-slide Reveal.js lecture on **Muon Dynamics as a Spectral Wasserstein
-Flow**, with 25 interactive numerical illustrations, locally bundled KaTeX,
+A 31-slide Reveal.js lecture on **Muon Dynamics as a Spectral Wasserstein
+Flow**, with 29 interactive numerical illustrations, locally bundled KaTeX,
 Canvas graphics and D3 contours. No external font, CDN or Python service is
 needed to view the deployed deck.
 
@@ -22,15 +22,17 @@ the teaching objective of each slide, and mathematical safeguards.
    limit, the state-dependent clock change, norm steepest descent, and Schatten
    exponents.
 2. **Particles to measures to transport:** empirical scaling, the finite
-   measure-LMO, MMD flows, static and robust transport, the Benamou-Brenier
-   formula, geodesics, and Gaussian transport.
+   measure-LMO, MMD and quadratic flows, static and robust transport, exact
+   mass splitting, the Benamou-Brenier formula, geodesics, and Gaussian
+   transport with both commuting and rotated covariances.
 3. **Applications and consequences:** conditional gradient-flow identification,
    ReLU training, attention heads, Gaussian linear networks, block gauges,
-   failure of geodesic convexity, P-L and Poincare inequalities.
+   failure of geodesic convexity, P-L and Poincare inequalities, and the
+   contrast between Gaussian and non-Gaussian targets.
 4. **Extensions and limits:** root-norm gauges, finite Newton-Schulz iterations,
    and noise before normalization.
 
-Allow approximately 45-60 minutes with demonstrations. Technical slides can
+Allow approximately 50-65 minutes with demonstrations. Technical slides can
 be skipped using the slide index. Each slide includes source pointers and
 speaker notes with assumptions, proof ideas and numerical qualifications.
 
@@ -51,9 +53,14 @@ npm run dev
 
 Open the local URL printed by Vite. Arrow buttons and arrow keys change slides;
 the index button jumps directly to a topic. Time sliders and play buttons
-animate the experiments; space toggles playback when available. Full screen
+animate the experiments; reset returns time to zero, and space toggles
+playback when available. Full screen
 and Reveal.js speaker notes (`S`) are available. On narrow screens, slides
 scroll vertically without shrinking the entire lecture to an unreadable size.
+The index groups the lecture into seven parts. Major numerical experiments use
+full-width layouts. At 1280-by-720, main prose is at least 22 pixels and display
+equations at least 23 pixels; chart labels are at least 14 pixels. Essential
+qualifications remain on screen, with longer arguments in speaker notes.
 
 ## Numerical provenance
 
@@ -75,10 +82,15 @@ constant. The six saved energy sequences decrease.
 `lecture.json` contains:
 
 - Twenty MMD runs: `n=16,32,64,128`, `p=1,1.5,2,4,infinity`, 1,024 stratified
-  target samples, `epsilon=0.03`, `dt=0.02`, `T=8`, and 101 frames. Different
+  target samples, `epsilon=0.03`, `T=8`, and 101 frames. Adaptive RK45 uses
+  `rtol=2e-6`, `atol=2e-8`, and maximum step `0.08`. Different
   particle counts are separately interacting systems with nested initial
   samples. Every run has decreasing saved energy. Comparisons use the same
-  metric clock, without matching initial rates.
+  metric clock, without matching initial rates. At `n=32`, the trace and
+  operator runs were repeated at 100-times tighter tolerances and half the
+  maximum step. Maximum coordinate RMS differences were `3.8e-6` and `1.7e-5`;
+  relative final-energy differences were below `7e-6`. These are refinement
+  checks, not rigorous error bounds for every run.
 - Eighteen spectral transport solves: 8 or 16 atoms, `p=1,2,infinity`, and
   target rotations 0, 30 or 60 degrees. The full coupling polytope is used;
   splitting is allowed. SciPy solves the trace case and the toolbox uses
@@ -98,14 +110,48 @@ constant. The six saved energy sequences decrease.
 64 neurons and `p=1,2,infinity`. The scalar input is augmented by a bias
 coordinate. PyTorch differentiates the loss on 97 fixed inputs; multiplying
 by the neuron count gives the measure force, and the toolbox's Schatten LMO
-gives the velocity. Euler uses `dt=0.025`, `T=15`, and saves 101 frames.
-Saved losses decrease. The lower plot projects neurons onto their two inner
-coordinates; it does not show their outer weights.
+gives the velocity. Heun's method uses `dt=0.025`, `T=40`, and saves 101 frames.
+Saved losses decrease. At `n=32`, halving the step for the trace and operator
+runs changes predictions by at most `3.8e-5` in RMS across the input grid and
+final losses by less than `8e-6` relatively. ReLU nonsmoothness still requires
+care in interpreting a continuous-time limit. The parameter plot projects
+neurons onto their two inner coordinates; marker radius also reflects the
+absolute outer weight. A dashed trace-flow predictor supplies a baseline.
 
 The attention illustration averages scalar-head softmax weights for eight
 tokens, 4/16/64 heads, and varying query/key scale. It is a parameterization
 demo, not a training run. Effective token counts are averaged per head and
-query, not computed from the averaged heatmap.
+query, not computed from the averaged heatmap. A query-row slider connects
+the heatmap to its individual weight profile; the square-root color scale is
+explicitly identified.
+
+### Additional analytic and covariance experiments
+
+`extensions.json` contains three small, reproducible datasets:
+
+- **Anisotropic quadratic descent:** 20 closed covariance evolutions for
+  curvature ratios `1,4,16,32` and five exponents. Trace and operator endpoints
+  use exact exponentials. Intermediate exponents reduce to a scalar clock ODE
+  with positive-part powers, so extinction cannot produce negative standard
+  deviations. Empirical clouds of 16, 64 and 256 points are centered and
+  whitened separately; the covariance closure is exact for each cloud.
+- **Rotated Gaussian transport:** 21 primal/dual semidefinite pairs for seven
+  rotations and `p=1,2,infinity`. Independent dual values agree within `5e-8`.
+  Every interpolated ellipse uses the analytic covariance of the optimal
+  joint Gaussian, not a fit to its 96 displayed samples. Numerical negative
+  eigenvalues at solver tolerance are clipped only when sampling. The joint
+  Gaussian is not asserted to be induced by a deterministic map.
+- **Radial Poincare tests:** exact second, fourth and sixth moments for seven
+  targets, from `exp(-|x|^1.25)` to the uniform disk, rescaled to covariance
+  identity. Browser formulas evaluate linear-plus-cubic test quotients.
+  These are upper bounds on sharp constants, not computed sharp constants
+  or numerical proofs of the strict-gap theorem.
+
+An exact two-atom transport example needs no data file: its feasible
+couplings have displacement eigenvalues `2 theta` and `2(1-theta)`. For
+`p>1`, equal splitting uniquely minimizes the cost at `2^(1/p)`, whereas
+every deterministic transport costs 2. The interface distinguishes optimal
+from nonoptimal interpolations.
 
 Other experiments use explicit formulas evaluated in the browser: diagonal
 LMOs, clock changes, EMA response, norm balls, commuting Gaussian transport,
@@ -119,6 +165,7 @@ with the toolbox, SciPy, CVXPY and PyTorch installed:
 python slides/scripts/generate_experiment.py
 python slides/scripts/generate_lecture.py
 python slides/scripts/generate_networks.py
+python slides/scripts/generate_extensions.py
 ```
 
 The cell example remains deliberately high-level: infer a Waddington
@@ -137,10 +184,11 @@ npm run preview
 
 On a machine with Chrome installed, `PLAYWRIGHT_CHANNEL=chrome npm run
 test:browser` uses it instead. Unit tests check the formulas, feasibility,
-duality gaps, energy descent, positive covariances, attention normalization
+duality gaps, energy descent, refinement checks, positive covariances, attention normalization
 and color convention. Browser tests visit every slide at desktop and phone
-sizes, check equation bounds and nonblank canvases, exercise sliders,
-playback, navigation and deep links, and capture screenshots. The commuting
+sizes, check readable font floors, equation bounds and nonblank canvases,
+exercise sliders, playback, reset, navigation and deep links, and capture
+screenshots. The commuting
 Gaussian example explicitly checks that changing p changes its distance but
 not its interpolation.
 

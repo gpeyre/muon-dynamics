@@ -4,15 +4,17 @@ import test from 'node:test';
 import { teachingSlides } from '../src/content.js';
 import { FLOW_BOUNDS, FIELD_BOUNDS, powerNorm, diagonalLMO, eigen2, clockState, memoryResponse, gaussianQuotient,
   nsResponse, noiseResponse, bentAction, rectangleKL } from '../src/lecture-math.js';
+import { splittingCoupling, splittingCost, gaussianCovariance, radialTest, momentGauge } from '../src/lecture-math.js';
 
 const data = JSON.parse(await readFile(new URL('../public/data/lecture.json', import.meta.url)));
 const networks = JSON.parse(await readFile(new URL('../public/data/networks.json', import.meta.url)));
+const extensions = JSON.parse(await readFile(new URL('../public/data/extensions.json', import.meta.url)));
 const close = (a, b, tolerance = 1e-8) => assert.ok(Math.abs(a - b) < tolerance, `${a} != ${b}`);
 
-test('the 27-slide narrative has unique links, sources and speaker notes', () => {
-  assert.equal(teachingSlides.length, 25);
-  assert.equal(new Set(teachingSlides.map(slide => slide.id)).size, 25);
-  assert.equal(teachingSlides.filter(slide => slide.demo).length, 24);
+test('the 31-slide narrative has unique links, sources and speaker notes', () => {
+  assert.equal(teachingSlides.length, 29);
+  assert.equal(new Set(teachingSlides.map(slide => slide.id)).size, 29);
+  assert.equal(teachingSlides.filter(slide => slide.demo).length, 28);
   for (const slide of teachingSlides) {
     assert.ok(slide.source.length > 10);
     assert.ok(slide.notes.length > 100);
@@ -133,6 +135,17 @@ test('attention examples are stochastic matrices with the expected zero-scale li
   }
 });
 
+test('halving the ReLU integration step preserves the displayed predictions and losses', () => {
+  assert.equal(networks.relu.integrator, 'Heun');
+  const checked = networks.relu.experiments.filter(e => e.refinement);
+  assert.deepEqual(checked.map(e => e.p), ['1', 'inf']);
+  for (const e of checked) {
+    assert.equal(e.refinement.dt, networks.relu.dt / 2);
+    assert.ok(e.refinement.maximumPredictionRMS < 4e-5);
+    assert.ok(e.refinement.relativeFinalEnergyError < 1e-5);
+  }
+});
+
 test('the Gaussian Poincare test respects the direction of the rate comparisons', () => {
   for (const p of [.5, .75, 1, 2, Infinity]) close(gaussianQuotient(0, p), 1);
   assert.ok(gaussianQuotient(.1, .75) < 1);
@@ -162,4 +175,86 @@ test('the exact noise example is unbiased only before nonlinear normalization', 
 test('reflection has infinite midpoint KL while translation remains finite', () => {
   assert.equal(rectangleKL(.5, 1.8, .8, true), Infinity);
   assert.ok(Number.isFinite(rectangleKL(.5, 1.8, .8, false)));
+});
+
+test('MMD tighter integrations reproduce both endpoint exponents', () => {
+  const checked = data.flow.experiments.filter(e => e.refinement);
+  assert.deepEqual(checked.map(e => e.p), ['1', 'inf']);
+  for (const e of checked) {
+    assert.ok(e.refinement.maximumRMS < 2e-5);
+    assert.ok(e.refinement.relativeFinalEnergyError < 1e-5);
+  }
+});
+
+test('mass splitting has the exact optimal cost and improves every deterministic map', () => {
+  for (const p of [1, 1.5, 2, 4, Infinity]) {
+    const optimum = 2 ** (p === Infinity ? 0 : 1 / p);
+    close(splittingCost(.5, p), optimum);
+    close(splittingCost(0, p), 2);
+    close(splittingCost(1, p), 2);
+    for (let k = 0; k <= 100; k += 1) {
+      const c = splittingCoupling(k / 100);
+      c.plan.forEach(row => close(row.reduce((s, x) => s + x, 0), .5));
+      close(momentGauge(c.moment, p), splittingCost(k / 100, p));
+      assert.ok(splittingCost(k / 100, p) >= optimum - 1e-10);
+    }
+    if (p > 1) assert.ok(optimum < 2);
+  }
+});
+
+test('quadratic covariance flows agree with the exact endpoints and handle extinction', () => {
+  for (const e of extensions.quadratic.experiments) {
+    e.factors.forEach((c, i) => {
+      const t = extensions.quadratic.times[i];
+      assert.ok(c.every(x => x >= 0 && x <= 1));
+      close(e.energies[i], .5 * (c[0] ** 2 + e.condition * c[1] ** 2), 2e-9);
+      if (i) assert.ok(e.energies[i] <= e.energies[i - 1] + 1e-9);
+      if (e.p === '1') { close(c[0], Math.exp(-t)); close(c[1], Math.exp(-e.condition * t)); }
+      if (e.p === 'inf') c.forEach(x => close(x, Math.exp(-(1 + e.condition) * t)));
+    });
+  }
+  for (const { n, x } of extensions.quadratic.samples) {
+    for (let i = 0; i < 2; i += 1) for (let j = 0; j < 2; j += 1) {
+      close(x.reduce((sum, row) => sum + row[i] * row[j] / n, 0), i === j ? 1 : 0);
+    }
+    assert.ok(x.flat().every(value => Math.abs(value) < 4));
+  }
+});
+
+test('noncommuting Gaussian transport has feasible covariance blocks and matching dual values', () => {
+  assert.equal(extensions.gaussianTransport.experiments.length, 21);
+  for (const e of extensions.gaussianTransport.experiments) {
+    assert.ok(e.minimumJointEigenvalue > -1e-7);
+    close(e.cost, e.lower, 1e-7);
+    const p = e.p === 'inf' ? Infinity : Number(e.p);
+    const displacement = e.source.map((row, i) => row.map((v, j) => v + e.target[i][j] - e.cross[i][j] - e.cross[j][i]));
+    close(momentGauge(displacement, p), e.cost, 1e-8);
+    if (e.angle === 0 || e.angle === 90) {
+      const target = e.angle === 0 ? [.7, 1.6] : [1.6, .7];
+      close(e.cost, powerNorm(target.map((s, i) => (s - [2, .55][i]) ** 2), p), 1e-7);
+    }
+    assert.ok(e.samples.flat().every(x => Math.abs(x) < extensions.gaussianTransport.bound));
+    gaussianCovariance(e, 0).flat().forEach((x, i) => close(x, e.source.flat()[i]));
+    gaussianCovariance(e, 1).flat().forEach((x, i) => close(x, e.target.flat()[i]));
+    for (const t of [.1, .5, .9]) assert.ok(eigen2(gaussianCovariance(e, t)).values[1] > 0);
+  }
+  const byP = p => extensions.gaussianTransport.experiments.find(e => e.angle === 45 && e.p === p);
+  const difference = gaussianCovariance(byP('1'), .5).flat().map((x, i) => x - gaussianCovariance(byP('inf'), .5).flat()[i]);
+  assert.ok(Math.hypot(...difference) > .01);
+});
+
+test('radial test quotients use variance-normalized exact moments, not sharp constants', () => {
+  for (const e of extensions.radial.experiments) {
+    close(e.moments[0], 2);
+    for (const p of [1, 1.5, 2, 4, Infinity]) {
+      close(radialTest(e.moments, 0, p).quotient, 1);
+      for (const a of [-.25, -.1, .1, .25]) {
+        const r = radialTest(e.moments, a, p), trace = radialTest(e.moments, a, 1);
+        assert.ok(r.gram.every(x => x >= 0) && r.variance > 0);
+        assert.ok(r.quotient >= trace.quotient - 1e-10);
+        if (e.q === '2') assert.ok(r.quotient >= 1);
+      }
+    }
+  }
+  assert.deepEqual(extensions.radial.experiments.find(e => e.q === '2').moments, [2, 8, 48]);
 });

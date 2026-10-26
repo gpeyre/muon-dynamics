@@ -93,7 +93,7 @@ test('particle count, scrubbing, playback, reset and trajectories work independe
   await page.locator('#restart').click();
   await expect(page.locator('#time-value')).toHaveText('0.00');
   await page.locator('#previous-slide').click();
-  await expect(page.locator('#slide-number')).toHaveText('01 / 27');
+  await expect(page.locator('#slide-number')).toHaveText('01 / 31');
 });
 
 test('failed data downloads leave an accessible error and disabled controls', async ({ page }) => {

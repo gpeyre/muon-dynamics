@@ -17,7 +17,7 @@ Three candidate orders were considered:
   The existing measure-optimization slide supplies motivation; the algorithm
   then gives a concrete route back to those measures.
 
-The deck is a modular lecture, approximately 45-60 minutes with demonstrations.
+The deck is a modular lecture, approximately 50-65 minutes with demonstrations.
 The last technical slides can be skipped for a shorter talk. Equations needed
 to follow the argument stay visible. Proof details, regularity assumptions,
 sources, and numerical protocols go in speaker notes, with essential caveats
@@ -38,29 +38,35 @@ particles interpolate from red to blue. Gray paths carry no method label.
 | 8. Rows become particles | The scaling F(X)=n f(alpha_X) makes matrix and empirical velocities agree. | Particle count and p; a selected velocity field. | Proposition 2.5 |
 | 9. A finite computation for any measure | Only a d-by-d force second moment is needed. | Force and velocity covariance ellipses; n and p. | Proposition 2.4 |
 | 10. A spectral measure flow | The continuity equation transports every particle by the same global normalization rule. | Side-by-side MMD trajectories: trace versus selected p; n and time. | Section 5, MMD |
-| 11. A cost on displacement covariance | Changing p changes the optimal coupling; splitting is allowed. | Small convex transport solves with p, n and target rotation. | Definition 3.1 |
-| 12. Robust quadratic costs | The adversary chooses a PSD cost matrix, not necessarily one projection. | Trace-one Q: orientation and eigenvalue allocation; exact discrete quadratic OT. | Theorem 3.4 |
-| 13. Static equals dynamic | Monotonicity and conditional expectation connect a coupling to a velocity field. | Straight versus bent paths and their actions. | Theorem 4.2 |
-| 14. Geodesics | Interpolate an optimal coupling, including its split masses. | p, n and time on a computed optimal coupling. | Corollary 4.4 |
-| 15. Gaussian transport | The problem reduces to covariance blocks; commuting examples have an explicit answer. | Covariance ellipses, anisotropy, p and interpolation time. | Proposition 3.6; Appendix D |
-| 16. A metric gradient flow | The LMO gives the energy identity under verification assumptions. | MMD energy curves on the unrescaled metric clock. | Theorem 5.1 |
-| 17. Training neurons | Network training moves particles in parameter space, not input space. | ReLU teacher fitting, neuron count, p and time; projected parameter paths. | Section 5, two-layer MLPs |
-| 18. Attention heads | A head is another possible parameter particle. | Head count and query/key scale; attention-weight heatmap. | Section 5, shallow attention |
-| 19. A Gaussian neural network | An affine force closes training on a covariance matrix. | Linear teacher, initial variance, p and time. | Appendix F |
-| 20. Independent parameter blocks | Sum and maximum block gauges model different normalization conventions. | Full matrix versus independent blocks; relative block scale. | Appendix B, block gauges |
-| 21. Convexity can fail | An optimal operator-cost geodesic can collapse a density to a line. | Translation versus reflection; time and separation. | Appendix H, counterexample |
-| 22. P-L without convexity | A slope lower bound gives exponential decay; changing the gauge scale changes the clock. | Guaranteed energy envelope, P-L constant and gauge scale. | Appendix I |
-| 23. Local rates and Poincare | Gaussian worst-case rates do not improve for p>=1, despite larger dissipation in many directions. | Rayleigh quotient of a linear-plus-quadratic Gaussian perturbation. | Appendix I, Gaussian targets |
-| 24. Beyond convex gauges | The root action may remain a norm even when gamma is not convex. | Diagonal root-norm balls across p=1/2 and p=1. | Appendix E, root-norm gauges |
-| 25. Finite Newton-Schulz | Stable fixed-scale polynomial updates have convex dissipation, not a fixed squared-norm metric. | Classical cubic iterations and the stable spectral interval. | Appendix B |
-| 26. Noise before normalization | Expectation does not commute with a nonlinear LMO. | An exactly enumerable unbiased two-point matrix noise model. | Appendix B, stochastic minibatches |
-| 27. What is established | Separate exact geometric results, conditional flow identification, and open approximation questions. | Summary of the chain, with links to paper and code. | Conclusion |
+| 11. An anisotropic quadratic | An affine closure isolates what the normalization changes. | Curvature ratio, p, n and time; matched initial second moments, exact endpoint solutions. | Measure-LMO; Appendix F |
+| 12. A cost on displacement covariance | Changing p changes the optimal coupling; splitting is allowed. | Small convex transport solves with p, n and target rotation. | Definition 3.1 |
+| 13. Why mass splitting matters | In a two-atom example, splitting strictly improves on every map when p>1. | Coupling mixture, p and interpolation time; exact cost curve. | Exact example of Definition 3.1 |
+| 14. Robust quadratic costs | The adversary chooses a PSD cost matrix, not necessarily one projection. | Trace-one Q: orientation and eigenvalue allocation; exact discrete quadratic OT. | Theorem 3.4 |
+| 15. Static equals dynamic | Monotonicity and conditional expectation connect a coupling to a velocity field. | Straight versus bent paths and their actions. | Theorem 4.2 |
+| 16. Geodesics | Interpolate an optimal coupling, including its split masses. | p, n and time on a computed optimal coupling. | Corollary 4.4 |
+| 17. Gaussian transport | The problem reduces to covariance blocks; commuting examples have an explicit answer. | Covariance ellipses, anisotropy, p and interpolation time. | Proposition 3.6; Appendix D |
+| 18. Rotated Gaussian transport | Without common axes, p can also change the interpolation. | Target rotation, p and time; joint-Gaussian samples and certified transport values. | Proposition 3.6; Appendix D |
+| 19. A metric gradient flow | The LMO gives the energy identity under verification assumptions. | MMD energy curves on the unrescaled metric clock. | Theorem 5.1 |
+| 20. Training neurons | Network training moves particles in parameter space, not input space. | ReLU teacher fitting, neuron count, p and time; projected parameter paths. | Section 5, two-layer MLPs |
+| 21. Attention heads | A head is another possible parameter particle. | Head count, query/key scale and selected query; attention heatmap and row weights. | Section 5, shallow attention |
+| 22. A Gaussian neural network | An affine force closes training on a covariance matrix. | Linear teacher, initial variance, p and time. | Appendix F |
+| 23. Independent parameter blocks | Sum and maximum block gauges model different normalization conventions. | Full matrix versus independent blocks; relative block scale. | Appendix B, block gauges |
+| 24. Convexity can fail | An optimal operator-cost geodesic can collapse a density to a line. | Translation versus reflection; time and separation. | Appendix H, counterexample |
+| 25. P-L without convexity | A slope lower bound gives exponential decay; changing the gauge scale changes the clock. | Guaranteed energy envelope, P-L constant and gauge scale. | Appendix I |
+| 26. Local rates and Poincare | Gaussian worst-case rates do not improve for p>=1, despite larger dissipation in many directions. | Rayleigh quotient of a linear-plus-quadratic Gaussian perturbation. | Appendix I, Gaussian targets |
+| 27. Beyond the Gaussian | Non-Gaussian radial targets have a strict local-rate gap; a test quotient is not a sharp constant. | Target exponent r, p and cubic amplitude; exact moments at fixed covariance. | Appendix I, generalized Gaussian targets |
+| 28. Beyond convex gauges | The root action may remain a norm even when gamma is not convex. | Diagonal root-norm balls across p=1/2 and p=1. | Appendix E, root-norm gauges |
+| 29. Finite Newton-Schulz | Stable fixed-scale polynomial updates have convex dissipation, not a fixed squared-norm metric. | Classical cubic iterations and the stable spectral interval. | Appendix B |
+| 30. Noise before normalization | Expectation does not commute with a nonlinear LMO. | An exactly enumerable unbiased two-point matrix noise model. | Appendix B, stochastic minibatches |
+| 31. What is established | Separate exact geometric results, conditional flow identification, and open approximation questions. | Summary of the chain, with links to paper and code. | Conclusion |
 
-The two concrete network slides were added after the first layout pass: they
-connect the abstract gradient-flow theorem back to the applications before
-introducing the special Gaussian closure. The attention experiment illustrates
-the parameterization only, not a training result. For a shorter talk, use slides
-1-14, 16-17, 20 and 27, leaving the remaining slides as interactive backup.
+The four additional experiments each resolve a specific ambiguity: the quadratic
+separates normalization from a complicated energy; two-atom transport makes
+splitting tangible; rotated Gaussians distinguish a special closed form from
+the general covariance problem; radial targets contrast the Gaussian no-gap
+case with strict improvement. The attention experiment illustrates the
+parameterization only, not a training result. For a shorter talk, use slides
+1-10, 12-16, 19-20, 23 and 31, leaving the others as interactive backup.
 
 ## Mathematical safeguards
 
@@ -92,15 +98,20 @@ the parameterization only, not a training result. For a shorter talk, use slides
    or an iteration/runtime advantage.
 10. The main flow theorem verifies an existing regular solution. It does not
     prove global PDE well-posedness, particle convergence, or ReLU regularity.
-11. Gaussian transport demonstrations explicitly restrict the closed formula
-    to commuting centered covariances. Gaussian training plots use a linear
+11. The Gaussian transport closed formula is restricted to commuting centered
+    covariances; rotated examples instead use certified semidefinite solves.
+    Analytic covariance ellipses and sampled particles are distinct objects.
+    Gaussian training plots use a linear
     teacher and monitor positive definiteness; no generic Gaussian closure
     is asserted for nonlinear networks.
 12. The entropy example refutes convexity along every geodesic, not the
     existence of a good selected geodesic. P-L and geodesic convexity are
     distinct assertions.
 13. The Poincare experiment plots test-function quotients, not a numerical
-    claim to have computed the infimum over all functions.
+    claim to have computed the infimum over all functions. The radial family
+    is rescaled to covariance identity, so a change of variance cannot be
+    mistaken for a change of geometry. Its strict-gap statement is the
+    paper's theorem, not an inference from the plotted quotients.
 14. Nonconvex root-norm gauges retain BB and the metric, but lose a maximum
     of linear costs. Finite-step NS lacks the homogeneity for that metric.
 15. Noise is added to the force before normalization. The two-outcome example
@@ -113,8 +124,10 @@ the parameterization only, not a training result. For a shorter talk, use slides
   trajectories and transport. Use explicit formulas for small analytic demos.
 - Keep article experiments and private drafts untouched. No large training run.
 - Check monotone sampled energies, finite coordinates, positive Gaussian
-  covariances, coupling feasibility and primal/dual agreement.
+  covariances, coupling feasibility and primal/dual agreement. Compare selected
+  MMD runs at tighter tolerances and selected ReLU runs at half the time step.
 - Test every slide at presentation and mobile sizes. Verify canvas pixels,
-  sliders, playback, links, mathematical rendering and deep-link navigation.
+  sliders, playback, reset, links, mathematical rendering and deep-link
+  navigation. Enforce font floors instead of shrinking long equations to fit.
 - Keep data provenance, theorem assumptions and source pointers in the notes
   and numerical README so the opening slide remains accessible.
